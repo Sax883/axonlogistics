@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axon Logistics - Professional Shipping & Logistics Solutions</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Leaflet Maps -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="assets/logo.svg" alt="Axon Logistics Logo">
+                <span>Axon Logistics</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tracking.html">Track Shipment</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="nav-link btn btn-outline-light btn-sm" href="#" id="adminAccessBtn">Admin Portal</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Welcome to Axon Logistics</h1>
+                <p>Your Trusted Partner in Global Shipping & Logistics Solutions</p>
+                <div class="mt-4">
+                    <a href="#services" class="btn btn-light me-2 btn-lg">Explore Services</a>
+                    <a href="tracking.html" class="btn btn-outline-light btn-lg">Track Shipment</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials & Proof Section -->
+    <section class="testimonials-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>What Our Clients Say</h2>
+                <p>Trusted by partners around the world — real feedback from real customers.</p>
+            </div>
+
+            <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="testimonial-card">
+                            <div class="testimonial-avatar">AL</div>
+                            <div class="testimonial-body">
+                                <div class="testimonial-stars">★★★★★</div>
+                                <h5>Reliable & Fast</h5>
+                                <p>Axon Logistics handled our urgent shipments flawlessly — on time and with great communication.</p>
+                                <small><strong>— Maria Lopez</strong>, Procurement Manager, RetailCo</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="testimonial-card">
+                            <div class="testimonial-avatar">TP</div>
+                            <div class="testimonial-body">
+                                <div class="testimonial-stars">★★★★★</div>
+                                <h5>Global Reach</h5>
+                                <p>Excellent international handling and customs support — made our exports seamless.</p>
+                                <small><strong>— Tom Park</strong>, Export Manager, TechParts</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="testimonial-card">
+                            <div class="testimonial-avatar">JS</div>
+                            <div class="testimonial-body">
+                                <div class="testimonial-stars">★★★★★</div>
+                                <h5>Customer-first</h5>
+                                <p>Responsive support and transparent tracking — their team kept us updated at every step.</p>
+                                <small><strong>— Jenna Singh</strong>, Operations Lead, FreshFoods</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+
+            <div class="proofs-section">
+                <div style="text-align:center; margin-top: 28px;">
+                    <h4 style="color:var(--primary-color);">Trusted By</h4>
+                </div>
+                <div class="proofs-logos mt-3">
+                    <div class="proof-logo"><img src="assets/logos/globalmart.svg" alt="GlobalMart" style="width:100%;height:auto;"/></div>
+                    <div class="proof-logo"><img src="assets/logos/oceanic.svg" alt="Oceanic" style="width:100%;height:auto;"/></div>
+                    <div class="proof-logo"><img src="assets/logos/airtrans.svg" alt="AirTrans" style="width:100%;height:auto;"/></div>
+                    <div class="proof-logo"><img src="assets/logos/logicorp.svg" alt="LogiCorp" style="width:100%;height:auto;"/></div>
+                    <div class="proof-logo"><img src="assets/logos/freshnet.svg" alt="FreshNet" style="width:100%;height:auto;"/></div>
+                </div>
+
+                <div class="proof-stats">
+                    <div class="proof-stat">
+                        <h3>12k+</h3>
+                        <p>Deliveries Completed</p>
+                    </div>
+                    <div class="proof-stat">
+                        <h3>85+</h3>
+                        <p>Countries Served</p>
+                    </div>
+                    <div class="proof-stat">
+                        <h3>98%</h3>
+                        <p>On-time Rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="features-section" id="services">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Services</h2>
+                <p>Comprehensive shipping solutions tailored to your business needs</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <h3>Ground Shipping</h3>
+                        <p>Fast and reliable ground transportation across the entire USA with real-time tracking and professional handling.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-ship"></i>
+                        </div>
+                        <h3>Ocean Freight</h3>
+                        <p>International sea shipping for large cargo volumes with competitive rates and flexible scheduling options.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-plane"></i>
+                        </div>
+                        <h3>Air Cargo</h3>
+                        <p>Express air freight for time-sensitive shipments with priority handling and expedited customs clearance.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <h3>Cargo Management</h3>
+                        <p>Complete cargo handling including packaging, storage, and inventory management with utmost care.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-map-location-dot"></i>
+                        </div>
+                        <h3>Live Tracking</h3>
+                        <p>Real-time shipment tracking with GPS technology and instant notifications at every stage of delivery.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h3>24/7 Support</h3>
+                        <p>Round-the-clock customer support to answer your questions and resolve issues immediately.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cargo Gallery Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>What We Ship</h2>
+                <p>We handle all types of cargo with professional expertise</p>
+            </div>
+            <div class="cargo-gallery">
+                <div class="cargo-item">
+                    <img src="https://images.unsplash.com/photo-1672552226669-f6c3041972ea?w=400&h=200&fit=crop" alt="Packages & Parcels" class="cargo-image-svg"/>
+                    <div class="cargo-info">
+                        <h4>Packages & Parcels</h4>
+                        <p>Standard packages and parcels for individuals and businesses worldwide.</p>
+                    </div>
+                </div>
+                <div class="cargo-item">
+                    <img src="https://images.unsplash.com/photo-1764046155497-ad7e50737ffa?w=400&h=200&fit=crop" alt="Heavy Equipment" class="cargo-image-svg"/>
+                    <div class="cargo-info">
+                        <h4>Heavy Equipment</h4>
+                        <p>Industrial machinery and heavy equipment with specialized handling and transport.</p>
+                    </div>
+                </div>
+                <div class="cargo-item">
+                    <img src="https://images.unsplash.com/photo-1759826350352-c5b0b77729bd?w=400&h=200&fit=crop" alt="Hazardous Materials" class="cargo-image-svg"/>
+                    <div class="cargo-info">
+                        <h4>Hazardous Materials</h4>
+                        <p>Certified handling of hazardous and dangerous materials following all regulations.</p>
+                    </div>
+                </div>
+                <div class="cargo-item">
+                    <img src="https://images.unsplash.com/photo-1761307234324-0c9eadb951de?w=400&h=200&fit=crop" alt="Temperature Controlled" class="cargo-image-svg"/>
+                    <div class="cargo-info">
+                        <h4>Temperature Controlled</h4>
+                        <p>Climate-controlled shipping for perishables and sensitive goods.</p>
+                    </div>
+                </div>
+                <div class="cargo-item">
+                    <img src="https://images.unsplash.com/photo-1765206257904-9c46302d88e5?w=400&h=200&fit=crop" alt="Valuable Items" class="cargo-image-svg"/>
+                    <div class="cargo-info">
+                        <h4>Valuable Items</h4>
+                        <p>Secure transport of high-value items with full insurance coverage.</p>
+                    </div>
+                </div>
+                <div class="cargo-item">
+                    <img src="https://images.unsplash.com/photo-1764470738268-99e79e2c8b05?w=400&h=200&fit=crop" alt="Vehicles" class="cargo-image-svg"/>
+                    <div class="cargo-info">
+                        <h4>Vehicles</h4>
+                        <p>Safe and secure vehicle transportation across the entire nation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Company Information & Map Section -->
+    <section class="map-section" id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Locate Us</h2>
+                <p>Find our headquarters and contact us for inquiries</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div id="company-map"></div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h4>Address</h4>
+                        <p>1234 Commerce Drive<br>Minneapolis, MN 55401<br>United States</p>
+                    </div>
+                        <div class="contact-card mt-3">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <h4>Email</h4>
+                            <p>support@axonlogistics.org</p>
+                        </div>
+                    <div class="contact-card mt-3">
+                        <div class="contact-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <h4>WhatsApp</h4>
+                        <p>+1 (763) 461-4006</p>
+                        <a href="https://wa.me/17634614006" target="_blank" class="whatsapp-btn mt-3">
+                            <i class="fab fa-whatsapp"></i>
+                            Chat on WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <h5>About Axon Logistics</h5>
+                    <p>Leading provider of comprehensive logistics and shipping solutions across the United States.</p>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h5>Quick Links</h5>
+                    <p><a href="index.html" style="color: white; text-decoration: none;">Home</a></p>
+                    <p><a href="tracking.html" style="color: white; text-decoration: none;">Track Shipment</a></p>
+                    <p><a href="admin/dashboard.html" style="color: white; text-decoration: none;">Admin Portal</a></p>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h5>Contact Information</h5>
+                    <p>📍 Minneapolis, MN 55401, USA</p>
+                    <p>✉️ support@axonlogistics.org</p>
+                    <p>💬 WhatsApp: +1 (763) 461-4006</p>
+                </div>
+            </div>
+            <hr style="border-color: rgba(255, 255, 255, 0.2); margin: 30px 0;">
+            <div style="text-align: center;">
+                <p>&copy; 2025 Axon Logistics. All Rights Reserved. | Professional Shipping & Logistics Solutions</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="js/data.js"></script>
+    <script>
+        // Initialize company map on homepage
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = initializeMap('company-map', {
+                center: [44.9537, -93.0900],
+                zoom: 12
+            });
+
+            // Add headquarters marker
+            addMarker(map, AXON_HQ.lat, AXON_HQ.lng, `
+                <div style="font-weight: bold; margin-bottom: 5px;">Axon Logistics HQ</div>
+                <div style="font-size: 0.9rem; margin: 5px 0;">
+                    <i class="fas fa-map-marker-alt"></i> ${AXON_HQ.address}
+                </div>
+                <div style="font-size: 0.9rem; margin: 5px 0;">
+                    <i class="fab fa-whatsapp"></i> ${AXON_HQ.whatsapp}
+                </div>
+            `, 'headquarters');
+
+            // Admin access button - open login modal
+            const adminBtn = document.getElementById('adminAccessBtn');
+            adminBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openAdminLoginModal();
+            });
+        });
+    </script>
+
+    <!-- Admin Login Modal -->
+    <div class="modal fade" id="adminLoginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Admin Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" id="adminUsername" class="form-control" placeholder="Username">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="adminPassword" class="form-control" placeholder="Password">
+                    </div>
+                    <div id="adminLoginError" style="color: #ef4444; display:none;">Invalid credentials</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="adminLoginSubmit">Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin login handling (client-side only)
+        function openAdminLoginModal() {
+            const modalEl = document.getElementById('adminLoginModal');
+            const modal = new bootstrap.Modal(modalEl);
+            document.getElementById('adminUsername').value = '';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminLoginError').style.display = 'none';
+            modal.show();
+
+            document.getElementById('adminLoginSubmit').onclick = function() {
+                const user = document.getElementById('adminUsername').value.trim();
+                const pass = document.getElementById('adminPassword').value;
+                if (user === 'axon_logistics' && pass === '@Power081') {
+                    modal.hide();
+                    // Open admin dashboard in new tab
+                    window.open('admin/dashboard.html', '_blank');
+                } else {
+                    document.getElementById('adminLoginError').style.display = 'block';
+                }
+            };
+        }
+    </script>
+</body>
+</html>

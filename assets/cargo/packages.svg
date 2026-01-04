@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="200" viewBox="0 0 260 200">
+  <defs>
+    <linearGradient id="boxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0284c7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="260" height="200" fill="#f0f9ff"/>
+  <rect x="60" y="60" width="90" height="90" fill="url(#boxGrad)" rx="4"/>
+  <rect x="70" y="70" width="70" height="70" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <circle cx="105" cy="105" r="20" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <line x1="85" y1="125" x2="125" y2="125" stroke="#ffffff" stroke-width="2"/>
+  <text x="130" y="170" font-family="Arial, sans-serif" font-size="16" fill="#1e40af" font-weight="700">Packages & Parcels</text>
+</svg>

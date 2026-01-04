@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Axon Logistics</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Leaflet Maps -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="../css/style.css" rel="stylesheet">
+    <style>
+        .admin-header-bar {
+            background: linear-gradient(135deg, #1e40af 0%, #0284c7 100%);
+            color: white;
+            padding: 20px 0;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e40af;
+        }
+
+        .stats-label {
+            color: #6b7280;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #1e40af 0%, #0284c7 100%);
+            color: white;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Header Bar -->
+    <div class="admin-header-bar">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 style="margin: 0;"><i class="fas fa-chart-line"></i> Admin Dashboard</h2>
+                    <p style="margin: 5px 0; opacity: 0.9;">Manage shipments, clients, and track logistics operations</p>
+                </div>
+                <div>
+                    <a href="../index.html" class="btn btn-light btn-sm" target="_blank">
+                        <i class="fas fa-globe"></i> View Website
+                    </a>
+                    <a href="../tracking.html" class="btn btn-light btn-sm ms-2" target="_blank">
+                        <i class="fas fa-map"></i> Tracking Page
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-container">
+        <div class="container-fluid">
+            <!-- Navigation Tabs -->
+            <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" 
+                            data-bs-target="#dashboardPanel" type="button" role="tab">
+                        <i class="fas fa-chart-bar"></i> Dashboard
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="shipments-tab" data-bs-toggle="tab" 
+                            data-bs-target="#shipmentsPanel" type="button" role="tab">
+                        <i class="fas fa-box"></i> Shipments
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="clients-tab" data-bs-toggle="tab" 
+                            data-bs-target="#clientsPanel" type="button" role="tab">
+                        <i class="fas fa-users"></i> Clients
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="new-shipment-tab" data-bs-toggle="tab" 
+                            data-bs-target="#newShipmentPanel" type="button" role="tab">
+                        <i class="fas fa-plus"></i> New Shipment
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="adminTabContent">
+                <!-- Dashboard Panel -->
+                <div class="tab-pane fade show active" id="dashboardPanel" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stats-card">
+                                <div class="stats-number" id="totalShipments">0</div>
+                                <div class="stats-label">Total Shipments</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stats-card">
+                                <div class="stats-number" id="inTransit">0</div>
+                                <div class="stats-label">In Transit</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stats-card">
+                                <div class="stats-number" id="delivered">0</div>
+                                <div class="stats-label">Delivered</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stats-card">
+                                <div class="stats-number" id="onHold">0</div>
+                                <div class="stats-label">On Hold/Issues</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-header">
+                            <h2>Recent Shipments</h2>
+                            <button class="btn btn-primary btn-sm" onclick="openCreateShipmentModal()">
+                                <i class="fas fa-plus"></i> Add Shipment
+                            </button>
+                        </div>
+                        <table class="shipment-table">
+                            <thead>
+                                <tr>
+                                    <th>Tracking #</th>
+                                    <th>From - To</th>
+                                    <th>Sender</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentShipmentsTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Shipments Panel -->
+                <div class="tab-pane fade" id="shipmentsPanel" role="tabpanel">
+                    <div class="admin-card">
+                        <div class="admin-header">
+                            <h2>All Shipments</h2>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="shipmentFilter" class="form-control" 
+                                       placeholder="Search tracking number..." style="max-width: 300px;">
+                                <button class="btn btn-primary" onclick="filterShipments()">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                        <table class="shipment-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tracking #</th>
+                                    <th>Origin</th>
+                                    <th>Destination</th>
+                                    <th>Sender</th>
+                                    <th>Weight</th>
+                                    <th>Status</th>
+                                    <th>Est. Delivery</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allShipmentsTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Clients Panel -->
+                <div class="tab-pane fade" id="clientsPanel" role="tabpanel">
+                    <div class="admin-card">
+                        <div class="admin-header">
+                            <h2>Manage Clients</h2>
+                            <button class="btn btn-primary btn-sm" onclick="openAddClientModal()">
+                                <i class="fas fa-user-plus"></i> Add Client
+                            </button>
+                        </div>
+                        <table class="shipment-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientsTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- New Shipment Panel -->
+                <div class="tab-pane fade" id="newShipmentPanel" role="tabpanel">
+                    <div class="admin-card">
+                        <div class="admin-header">
+                            <h2>Create New Shipment</h2>
+                        </div>
+                        <form id="newShipmentForm">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Sender Name *</label>
+                                    <input type="text" class="form-control" id="formSender" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Receiver Name *</label>
+                                    <input type="text" class="form-control" id="formReceiver" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Origin City / Address *</label>
+                                        <input list="citySuggestions" class="form-control" id="formOrigin" required placeholder="Type or select origin city or address">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Destination City / Address *</label>
+                                        <input list="citySuggestions" class="form-control" id="formDestination" required placeholder="Type or select destination city or address">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Weight (kg) *</label>
+                                    <input type="number" class="form-control" id="formWeight" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Estimated Delivery Date *</label>
+                                    <input type="date" class="form-control" id="formDeliveryDate" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Initial Status *</label>
+                                    <select class="form-select" id="formStatus" required>
+                                        <option value="pending">Pending</option>
+                                        <option value="picked-up">Picked Up</option>
+                                        <option value="in-transit">In Transit</option>
+                                        <option value="out-for-delivery">Out for Delivery</option>
+                                        <option value="delivered">Delivered</option>
+                                        <option value="on-hold">On Hold</option>
+                                        <option value="held-by-customs">Held by Customs</option>
+                                        <option value="delay">Delayed</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-save"></i> Create Shipment
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Shipment Modal -->
+    <div class="modal fade" id="editShipmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Shipment Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tracking Number</label>
+                        <p id="modalTrackingNumber" style="margin: 0; font-weight: bold;"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Current Status</label>
+                        <p id="modalCurrentStatus" style="margin: 0;"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">New Status *</label>
+                        <select class="form-select" id="modalNewStatus">
+                            <option value="pending">Pending</option>
+                            <option value="picked-up">Picked Up</option>
+                            <option value="in-transit">In Transit</option>
+                            <option value="out-for-delivery">Out for Delivery</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="on-hold">On Hold</option>
+                            <option value="held-by-customs">Held by Customs</option>
+                            <option value="delay">Delayed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Update Message *</label>
+                        <textarea class="form-control" id="modalUpdateMessage" rows="3" placeholder="Enter update message..."></textarea>
+                    </div>
+                            <div class="mb-3">
+                                <label class="form-label">Current Location / Address *</label>
+                                <input list="citySuggestions" id="modalUpdateLocation" class="form-control" placeholder="Type or select a city or full address...">
+                                <datalist id="citySuggestions"></datalist>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Weight (kg)</label>
+                                <input type="text" class="form-control" id="modalWeight" placeholder="e.g. 12 kg">
+                            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveShipmentUpdate()">
+                        <i class="fas fa-save"></i> Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                <!-- Create Shipment Modal -->
+                <div class="modal fade" id="createShipmentModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Create New Shipment</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="createShipmentForm">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Tracking Number</label>
+                                            <input type="text" id="createTrackingNumber" class="form-control" readonly>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Created Date</label>
+                                            <input type="date" id="createCreatedDate" class="form-control" value="">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Sender Name *</label>
+                                            <input type="text" class="form-control" id="createSender" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Receiver Name *</label>
+                                            <input type="text" class="form-control" id="createReceiver" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Origin *</label>
+                                            <input list="citySuggestions" class="form-control" id="createOrigin" required placeholder="Type or select origin">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Destination *</label>
+                                            <input list="citySuggestions" class="form-control" id="createDestination" required placeholder="Type or select destination">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Weight (kg) *</label>
+                                            <input type="text" class="form-control" id="createWeight" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Estimated Delivery</label>
+                                            <input type="date" class="form-control" id="createEstimatedDelivery">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Status *</label>
+                                            <select class="form-select" id="createStatus" required>
+                                                <option value="pending">Pending</option>
+                                                <option value="picked-up">Picked Up</option>
+                                                <option value="in-transit">In Transit</option>
+                                                <option value="out-for-delivery">Out for Delivery</option>
+                                                <option value="delivered">Delivered</option>
+                                                <option value="on-hold">On Hold</option>
+                                                <option value="held-by-customs">Held by Customs</option>
+                                                <option value="delay">Delayed</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" onclick="createShipmentFromModal()"><i class="fas fa-save"></i> Create</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+    <!-- Add/Edit Client Modal -->
+    <div class="modal fade" id="clientModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clientModalTitle">Add Client</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="clientForm">
+                        <div class="mb-3">
+                            <label class="form-label">Client Name *</label>
+                            <input type="text" class="form-control" id="clientName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="clientEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone *</label>
+                            <input type="tel" class="form-control" id="clientPhone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address *</label>
+                            <input type="text" class="form-control" id="clientAddress" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveClient()">
+                        <i class="fas fa-save"></i> Save Client
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="../js/data.js"></script>
+
+    <script>
+        let currentEditingShipmentId = null;
+        let currentEditingClientId = null;
+        let editShipmentModal = null;
+        let clientModal = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+                editShipmentModal = new bootstrap.Modal(document.getElementById('editShipmentModal'));
+                clientModal = new bootstrap.Modal(document.getElementById('clientModal'));
+                createShipmentModal = new bootstrap.Modal(document.getElementById('createShipmentModal'));
+
+                // Populate city dropdowns
+                populateCityDropdowns();
+
+                // Load initial data
+                loadDashboard();
+                loadAllShipments();
+                loadClients();
+
+                // Setup form listeners
+                document.getElementById('newShipmentForm').addEventListener('submit', createNewShipment);
+                // Keep create form ready
+                document.getElementById('createShipmentForm').addEventListener('submit', function(e){ e.preventDefault(); createShipmentFromModal(); });
+        });
+
+        function populateCityDropdowns() {
+            // Populate the shared datalist with both domestic and international suggestions
+            const datalist = document.getElementById('citySuggestions');
+            if (!datalist) return;
+            datalist.innerHTML = '';
+
+            if (typeof MAJOR_CITIES !== 'undefined') {
+                MAJOR_CITIES.forEach(city => {
+                    const label = `${city.city}${city.state ? ', ' + city.state : ''}${city.country ? ', ' + city.country : ''}`;
+                    const option = document.createElement('option');
+                    option.value = label;
+                    datalist.appendChild(option);
+                });
+            }
+
+            if (typeof SUGGESTED_LOCATIONS !== 'undefined') {
+                SUGGESTED_LOCATIONS.forEach(loc => {
+                    const option = document.createElement('option');
+                    option.value = loc.label || `${loc.city}${loc.country ? ', ' + loc.country : ''}`;
+                    datalist.appendChild(option);
+                });
+            }
+        }
+
+        function resolveLocation(label) {
+            if (!label) return null;
+            const val = String(label).trim();
+            const pool = [];
+            if (typeof MAJOR_CITIES !== 'undefined') pool.push(...MAJOR_CITIES.map(c => ({ city: c.city, state: c.state || '', lat: c.lat, lng: c.lng, label: `${c.city}${c.state ? ', ' + c.state : ''}` })));
+            if (typeof SUGGESTED_LOCATIONS !== 'undefined') pool.push(...SUGGESTED_LOCATIONS.map(c => ({ city: c.city, state: c.country || '', lat: c.lat, lng: c.lng, label: c.label || `${c.city}${c.country ? ', ' + c.country : ''}` })));
+
+            // Try exact label match
+            let found = pool.find(p => p.label.toLowerCase() === val.toLowerCase());
+            if (found) return { city: found.city, state: found.state, lat: found.lat, lng: found.lng };
+
+            // Try city name match
+            const cityName = val.split(',')[0].trim().toLowerCase();
+            found = pool.find(p => p.city && p.city.toLowerCase() === cityName);
+            if (found) return { city: found.city, state: found.state, lat: found.lat, lng: found.lng };
+
+            // Fallback to free-text address without coordinates
+            return { city: val, state: '', lat: null, lng: null };
+        }
+
+        function openCreateShipmentModal() {
+            const shipments = dataManager.getShipments();
+            const nextIndex = shipments.length + 1;
+            const id = 'AXN' + String(nextIndex).padStart(3, '0');
+            const trackingNumber = `${id}-2025-${String(nextIndex).padStart(3, '0')}`;
+
+            document.getElementById('createTrackingNumber').value = trackingNumber;
+            // set created date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('createCreatedDate').value = today;
+
+            // clear other fields
+            document.getElementById('createSender').value = '';
+            document.getElementById('createReceiver').value = '';
+            document.getElementById('createWeight').value = '';
+            document.getElementById('createEstimatedDelivery').value = '';
+            document.getElementById('createStatus').value = 'pending';
+            document.getElementById('createOrigin').value = '';
+            document.getElementById('createDestination').value = '';
+
+            createShipmentModal.show();
+        }
+
+        function createShipmentFromModal() {
+            try {
+                const trackingNumber = document.getElementById('createTrackingNumber').value;
+                const createdDate = document.getElementById('createCreatedDate').value || new Date().toISOString().split('T')[0];
+                const sender = document.getElementById('createSender').value.trim();
+                const receiver = document.getElementById('createReceiver').value.trim();
+                const originJson = document.getElementById('createOrigin').value;
+                const destinationJson = document.getElementById('createDestination').value;
+                const weightVal = document.getElementById('createWeight').value.trim();
+                const estDelivery = document.getElementById('createEstimatedDelivery').value;
+                const statusVal = document.getElementById('createStatus').value;
+
+                if (!sender || !receiver || !originJson || !destinationJson || !weightVal) {
+                    showNotification('Please fill required fields', 'warning');
+                    return;
+                }
+
+                const origin = resolveLocation(originJson);
+                const destination = resolveLocation(destinationJson);
+
+                const weightText = String(weightVal).trim().endsWith('kg') ? String(weightVal).trim() : `${weightVal} kg`;
+
+                const newShipment = {
+                    sender: sender,
+                    receiver: receiver,
+                    origin: origin,
+                    destination: destination,
+                    weight: weightText,
+                    status: statusVal,
+                    createdDate: createdDate,
+                    estimatedDelivery: estDelivery || ''
+                };
+
+                const created = dataManager.addShipment(newShipment);
+                showNotification('Shipment created: ' + created.trackingNumber, 'success');
+                createShipmentModal.hide();
+                loadDashboard();
+                loadAllShipments();
+            } catch (err) {
+                console.error('createShipmentFromModal error', err);
+                showNotification('Failed to create shipment', 'error');
+            }
+        }
+
+        function loadDashboard() {
+            const shipments = dataManager.getShipments();
+            document.getElementById('totalShipments').textContent = shipments.length;
+            document.getElementById('inTransit').textContent = shipments.filter(s => s.status === 'in-transit').length;
+            document.getElementById('delivered').textContent = shipments.filter(s => s.status === 'delivered').length;
+            document.getElementById('onHold').textContent = shipments.filter(s => 
+                ['on-hold', 'held-by-customs', 'delay'].includes(s.status)
+            ).length;
+
+            // Show recent shipments
+            const recentTable = document.getElementById('recentShipmentsTable');
+            recentTable.innerHTML = '';
+            shipments.slice(-5).reverse().forEach(shipment => {
+                recentTable.innerHTML += createShipmentRow(shipment, true);
+            });
+        }
+
+        function loadAllShipments() {
+            const shipments = dataManager.getShipments();
+            const table = document.getElementById('allShipmentsTable');
+            table.innerHTML = '';
+            shipments.forEach(shipment => {
+                table.innerHTML += `
+                    <tr>
+                        <td><strong>${shipment.id}</strong></td>
+                        <td>${shipment.trackingNumber}</td>
+                        <td>${shipment.origin.city}${shipment.origin.state ? ', ' + shipment.origin.state : shipment.origin.country ? ', ' + shipment.origin.country : ''}</td>
+                        <td>${shipment.destination.city}, ${shipment.destination.state}</td>
+                        <td>${shipment.sender}</td>
+                        <td>${shipment.weight}</td>
+                        <td><span class="status-badge ${getStatusBadgeClass(shipment.status)}">${getStatusLabel(shipment.status)}</span></td>
+                        <td>${formatDate(shipment.estimatedDelivery)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-edit" onclick="openEditShipmentModal('${shipment.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-view" onclick="viewShipmentDetails('${shipment.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-delete" onclick="deleteShipmentConfirm('${shipment.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function createShipmentRow(shipment, isRecent = false) {
+            return `
+                <tr>
+                    <td><strong>${shipment.trackingNumber}</strong></td>
+                    <td>${shipment.origin.city}${shipment.origin.state ? ', ' + shipment.origin.state : shipment.origin.country ? ', ' + shipment.origin.country : ''} → ${shipment.destination.city}${shipment.destination.state ? ', ' + shipment.destination.state : shipment.destination.country ? ', ' + shipment.destination.country : ''}</td>
+                    <td>${shipment.sender}</td>
+                    <td><span class="status-badge ${getStatusBadgeClass(shipment.status)}">${getStatusLabel(shipment.status)}</span></td>
+                    <td>${formatDate(shipment.createdDate)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-edit" onclick="openEditShipmentModal('${shipment.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-delete" onclick="deleteShipmentConfirm('${shipment.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function loadClients() {
+            const clients = dataManager.getClients();
+            const table = document.getElementById('clientsTable');
+            table.innerHTML = '';
+            clients.forEach(client => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${client.id}</td>
+                        <td>${client.name}</td>
+                        <td>${client.email}</td>
+                        <td>${client.phone}</td>
+                        <td>${client.address}</td>
+                        <td>
+                            <button class="btn btn-sm btn-edit" onclick="openEditClientModal(${client.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-delete" onclick="deleteClientConfirm(${client.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openEditShipmentModal(shipmentId) {
+            const shipment = dataManager.getShipmentById(shipmentId);
+            currentEditingShipmentId = shipmentId;
+
+            document.getElementById('modalTrackingNumber').textContent = shipment.trackingNumber;
+            document.getElementById('modalCurrentStatus').innerHTML = 
+                `<span class="status-badge ${getStatusBadgeClass(shipment.status)}">${getStatusLabel(shipment.status)}</span>`;
+            document.getElementById('modalNewStatus').value = shipment.status;
+            document.getElementById('modalUpdateMessage').value = '';
+            // Pre-fill location input with currentLocation label or last update location
+            const locInput = document.getElementById('modalUpdateLocation');
+            if (shipment.currentLocation && shipment.currentLocation.label) {
+                locInput.value = shipment.currentLocation.label;
+            } else if (shipment.updates && shipment.updates.length) {
+                const last = shipment.updates[shipment.updates.length - 1];
+                locInput.value = last.location || '';
+            } else {
+                locInput.value = '';
+            }
+
+            // Pre-fill weight if present
+            const weightInput = document.getElementById('modalWeight');
+            weightInput.value = shipment.weight || '';
+
+            editShipmentModal.show();
+        }
+
+        function saveShipmentUpdate() {
+            const status = document.getElementById('modalNewStatus').value;
+            const message = document.getElementById('modalUpdateMessage').value;
+            const locationInput = document.getElementById('modalUpdateLocation').value.trim();
+            const modalWeight = document.getElementById('modalWeight').value.trim();
+
+            if (!status || !message || !locationInput) {
+                showNotification('Please fill all required fields', 'warning');
+                return;
+            }
+
+            // Try to match the typed location to a known city to get coordinates
+            let locationStr = locationInput;
+            try {
+                const cityName = String(locationInput).split(',')[0].trim();
+                const pool = [];
+                if (typeof MAJOR_CITIES !== 'undefined') pool.push(...MAJOR_CITIES);
+                if (typeof SUGGESTED_LOCATIONS !== 'undefined') pool.push(...SUGGESTED_LOCATIONS);
+                const cityObj = pool.find(c => (c.city && c.city.toLowerCase() === cityName.toLowerCase()) || (c.label && c.label.toLowerCase() === locationInput.toLowerCase()));
+                if (cityObj) {
+                    locationStr = cityObj.label || `${cityObj.city}${cityObj.state ? ', ' + cityObj.state : ''}${cityObj.country ? ', ' + cityObj.country : ''}`;
+                }
+            } catch (err) {}
+
+            // Update weight if changed
+            if (modalWeight) {
+                dataManager.updateShipment(currentEditingShipmentId, { weight: modalWeight });
+            }
+
+            dataManager.updateShipmentStatus(currentEditingShipmentId, status, message, locationStr);
+            showNotification('Shipment updated successfully', 'success');
+            editShipmentModal.hide();
+            loadDashboard();
+            loadAllShipments();
+        }
+
+        function deleteShipmentConfirm(shipmentId) {
+            if (confirm('Are you sure you want to delete this shipment?')) {
+                dataManager.deleteShipment(shipmentId);
+                showNotification('Shipment deleted', 'success');
+                loadDashboard();
+                loadAllShipments();
+            }
+        }
+
+        function createNewShipment(e) {
+            e.preventDefault();
+
+            const originInput = document.getElementById('formOrigin').value;
+            const destinationInput = document.getElementById('formDestination').value;
+
+            if (!originInput || !destinationInput) {
+                showNotification('Please provide both origin and destination', 'warning');
+                return;
+            }
+
+            const origin = resolveLocation(originInput);
+            const destination = resolveLocation(destinationInput);
+
+            try {
+                const sender = document.getElementById('formSender').value.trim();
+                const receiver = document.getElementById('formReceiver').value.trim();
+                const weightVal = document.getElementById('formWeight').value;
+                const statusVal = document.getElementById('formStatus').value;
+                const deliveryDate = document.getElementById('formDeliveryDate').value;
+
+                if (!sender || !receiver || !weightVal || !deliveryDate) {
+                    showNotification('Please fill all required fields', 'warning');
+                    return;
+                }
+
+                const weightText = String(weightVal).trim().endsWith('kg') ? String(weightVal).trim() : `${weightVal} kg`;
+
+                const newShipment = {
+                    sender: sender,
+                    receiver: receiver,
+                    origin: origin,
+                    destination: destination,
+                    weight: weightText,
+                    status: statusVal,
+                    createdDate: new Date().toISOString().split('T')[0],
+                    estimatedDelivery: deliveryDate
+                };
+
+                dataManager.addShipment(newShipment);
+                showNotification('Shipment created successfully', 'success');
+                document.getElementById('newShipmentForm').reset();
+                loadDashboard();
+                loadAllShipments();
+            } catch (err) {
+                console.error('Error creating shipment', err);
+                showNotification('Could not create shipment. Check console for details.', 'error');
+            }
+        }
+
+        function openAddClientModal() {
+            currentEditingClientId = null;
+            document.getElementById('clientModalTitle').textContent = 'Add Client';
+            document.getElementById('clientForm').reset();
+            clientModal.show();
+        }
+
+        function openEditClientModal(clientId) {
+            const client = dataManager.getClients().find(c => c.id === clientId);
+            currentEditingClientId = clientId;
+
+            document.getElementById('clientModalTitle').textContent = 'Edit Client';
+            document.getElementById('clientName').value = client.name;
+            document.getElementById('clientEmail').value = client.email;
+            document.getElementById('clientPhone').value = client.phone;
+            document.getElementById('clientAddress').value = client.address;
+
+            clientModal.show();
+        }
+
+        function saveClient() {
+            const name = document.getElementById('clientName').value;
+            const email = document.getElementById('clientEmail').value;
+            const phone = document.getElementById('clientPhone').value;
+            const address = document.getElementById('clientAddress').value;
+
+            if (!name || !email || !phone || !address) {
+                showNotification('Please fill all fields', 'warning');
+                return;
+            }
+
+            if (currentEditingClientId) {
+                dataManager.updateClient(currentEditingClientId, { name, email, phone, address });
+                showNotification('Client updated successfully', 'success');
+            } else {
+                dataManager.addClient({ name, email, phone, address });
+                showNotification('Client added successfully', 'success');
+            }
+
+            clientModal.hide();
+            loadClients();
+        }
+
+        function deleteClientConfirm(clientId) {
+            if (confirm('Are you sure you want to delete this client?')) {
+                dataManager.deleteClient(clientId);
+                showNotification('Client deleted', 'success');
+                loadClients();
+            }
+        }
+
+        function viewShipmentDetails(shipmentId) {
+            const shipment = dataManager.getShipmentById(shipmentId);
+            const fromLabel = `${shipment.origin.city}${shipment.origin.state ? ', ' + shipment.origin.state : shipment.origin.country ? ', ' + shipment.origin.country : ''}`;
+            const toLabel = `${shipment.destination.city}${shipment.destination.state ? ', ' + shipment.destination.state : shipment.destination.country ? ', ' + shipment.destination.country : ''}`;
+            alert(`Shipment Details:\n\nTracking: ${shipment.trackingNumber}\nFrom: ${fromLabel}\nTo: ${toLabel}\nStatus: ${getStatusLabel(shipment.status)}\nWeight: ${shipment.weight}`);
+        }
+
+        function filterShipments() {
+            const filter = document.getElementById('shipmentFilter').value.toLowerCase();
+            const rows = document.getElementById('allShipmentsTable').getElementsByTagName('tr');
+            
+            Array.from(rows).forEach(row => {
+                const tracking = row.cells[1].textContent.toLowerCase();
+                row.style.display = tracking.includes(filter) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

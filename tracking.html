@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Shipment - Axon Logistics</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Leaflet Maps -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="assets/logo.svg" alt="Axon Logistics Logo">
+                <span>Axon Logistics</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="tracking.html">Track Shipment</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="nav-link btn btn-outline-light btn-sm" href="admin/dashboard.html" target="_blank">Admin Portal</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Tracking Container -->
+    <div class="tracking-container">
+        <div class="container">
+            <!-- Hero + Search -->
+            <div class="tracking-hero d-flex flex-column flex-md-row align-items-center justify-content-between">
+                <div style="flex:1; min-width: 240px;">
+                    <h2><i class="fas fa-map-marker-alt"></i> Track Your Shipment</h2>
+                    <p>Enter your tracking ID below to see live location, timeline and delivery progress.</p>
+                    <div class="info-cards">
+                        <div class="stat-card">
+                            <h4>Fast Tracking</h4>
+                            <p>Real-time updates across pickup, transit and delivery.</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Global</h4>
+                            <p>International routes & customs statuses supported.</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Support</h4>
+                            <p>Contact support via email or WhatsApp for assistance.</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 420px; max-width: 100%; margin-top: 12px;">
+                    <div class="tracking-card">
+                        <div class="tracking-header">
+                            <h3 class="mb-0"><i class="fas fa-search"></i> Quick Lookup</h3>
+                        </div>
+                        <div class="row g-3 p-3">
+                            <div class="col-8">
+                                <input type="text" id="trackingInput" class="form-control form-control-lg" placeholder="Enter Tracking Number" autocomplete="off">
+                                <small class="text-muted d-block mt-2">Example: AXN001-2025-001</small>
+                            </div>
+                            <div class="col-4 d-grid">
+                                <button class="btn btn-primary h-100" onclick="searchShipment()"><i class="fas fa-search"></i> Track</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="support-card mt-3">
+                        <h5>Need Help?</h5>
+                        <p style="margin:0 0 8px 0;">Email: <strong>support@axonloogistics.org</strong></p>
+                        <a href="https://wa.me/17634614006" target="_blank" class="btn btn-outline-primary btn-sm">Contact via WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tracking Results -->
+            <div id="trackingResults" style="display: none;">
+                <!-- Shipment Details -->
+                <div class="tracking-card">
+                    <div class="tracking-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3>Shipment Details</h3>
+                            </div>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="resetTracking()">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div>
+                                <label class="form-label text-muted">Tracking Number</label>
+                                <p id="detailTrackingNumber" class="h5 text-dark" style="margin: 0;"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label class="form-label text-muted">Current Status</label>
+                                <p id="detailStatus" style="margin: 0;"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label class="form-label text-muted">From</label>
+                                <p id="detailFrom" class="text-dark" style="margin: 0;"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label class="form-label text-muted">To</label>
+                                <p id="detailTo" class="text-dark" style="margin: 0;"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label class="form-label text-muted">Sender</label>
+                                <p id="detailSender" class="text-dark" style="margin: 0;"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label class="form-label text-muted">Receiver</label>
+                                <p id="detailReceiver" class="text-dark" style="margin: 0;"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label class="form-label text-muted">Weight</label>
+                                <p id="detailWeight" class="text-dark" style="margin: 0;"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label class="form-label text-muted">Estimated Delivery</label>
+                                <p id="detailDelivery" class="text-dark" style="margin: 0;"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Tracking Map -->
+                <div class="tracking-card">
+                    <div class="tracking-header">
+                        <h3><i class="fas fa-map-location-dot"></i> Live Tracking Map</h3>
+                    </div>
+                    <div id="tracking-map"></div>
+                </div>
+
+                <!-- Status Timeline -->
+                <div class="tracking-card">
+                    <div class="tracking-header">
+                        <h3><i class="fas fa-list"></i> Shipment Updates</h3>
+                    </div>
+                    <div class="status-timeline" id="statusTimeline">
+                        <!-- Timeline items will be added here -->
+                    </div>
+                </div>
+
+                <!-- Shipment Statistics -->
+                <div class="tracking-card">
+                    <div class="tracking-header">
+                        <h3><i class="fas fa-chart-bar"></i> Journey Progress</h3>
+                    </div>
+                    <div id="progressBar" style="margin: 20px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 600;">
+                            <span>Pickup</span>
+                            <span>In Transit</span>
+                            <span>Out for Delivery</span>
+                            <span>Delivered</span>
+                        </div>
+                        <div style="width: 100%; height: 10px; background: #e5e7eb; border-radius: 10px; overflow: hidden;">
+                            <div id="progressFill" style="height: 100%; background: linear-gradient(90deg, #1e40af, #0284c7); width: 0%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Results Message -->
+            <div id="noResults" class="tracking-card" style="display: none; text-align: center;">
+                <h4 style="color: #6b7280; margin-bottom: 10px;">
+                    <i class="fas fa-inbox"></i> No Shipment Found
+                </h4>
+                <p style="color: #9ca3af;">Please enter a valid tracking number to view shipment details.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <h5>About Axon Logistics</h5>
+                    <p>Leading provider of comprehensive logistics and shipping solutions across the United States.</p>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h5>Quick Links</h5>
+                    <p><a href="index.html" style="color: white; text-decoration: none;">Home</a></p>
+                    <p><a href="tracking.html" style="color: white; text-decoration: none;">Track Shipment</a></p>
+                    <p><a href="admin/dashboard.html" style="color: white; text-decoration: none;">Admin Portal</a></p>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h5>Contact Information</h5>
+                    <p>📍 Minneapolis, MN 55401, USA</p>
+                    <p>✉️ support@axonlogistics.org</p>
+                    <p>💬 WhatsApp: +1 (763) 461-4006</p>
+                </div>
+            </div>
+            <hr style="border-color: rgba(255, 255, 255, 0.2); margin: 30px 0;">
+            <div style="text-align: center;">
+                <p>&copy; 2025 Axon Logistics. All Rights Reserved. | Professional Shipping & Logistics Solutions</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="js/data.js"></script>
+
+    <script>
+        let currentMap = null;
+        let parcelMarker = null;
+
+        function searchShipment() {
+            const trackingNumber = document.getElementById('trackingInput').value.trim();
+            
+            if (!trackingNumber) {
+                showNotification('Please enter a tracking number', 'warning');
+                return;
+            }
+
+            const shipment = dataManager.getShipmentByTracking(trackingNumber);
+
+            if (shipment) {
+                displayShipment(shipment);
+            } else {
+                document.getElementById('trackingResults').style.display = 'none';
+                document.getElementById('noResults').style.display = 'block';
+                showNotification('Tracking number not found', 'error');
+            }
+        }
+
+        function displayShipment(shipment) {
+            // Show results section
+            document.getElementById('trackingResults').style.display = 'block';
+            document.getElementById('noResults').style.display = 'none';
+
+            // Populate shipment details
+            document.getElementById('detailTrackingNumber').textContent = shipment.trackingNumber;
+            document.getElementById('detailStatus').innerHTML = `<span class="status-badge ${getStatusBadgeClass(shipment.status)}">${getStatusLabel(shipment.status)}</span>`;
+            const originLabel = `${shipment.origin.city}${shipment.origin.state ? ', ' + shipment.origin.state : shipment.origin.country ? ', ' + shipment.origin.country : ''}`;
+            const destLabel = `${shipment.destination.city}${shipment.destination.state ? ', ' + shipment.destination.state : shipment.destination.country ? ', ' + shipment.destination.country : ''}`;
+            document.getElementById('detailFrom').textContent = originLabel;
+            document.getElementById('detailTo').textContent = destLabel;
+            document.getElementById('detailSender').textContent = shipment.sender;
+            document.getElementById('detailReceiver').textContent = shipment.receiver;
+            document.getElementById('detailWeight').textContent = shipment.weight;
+            document.getElementById('detailDelivery').textContent = formatDate(shipment.estimatedDelivery);
+
+            // Display map
+            displayTrackingMap(shipment);
+
+            // Display timeline
+            displayTimeline(shipment);
+
+            // Display progress
+            updateProgress(shipment);
+
+            // Scroll to results
+            document.getElementById('trackingResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayTrackingMap(shipment) {
+            // Remove old map if exists
+            if (currentMap) {
+                currentMap.remove();
+                currentMap = null;
+            }
+
+            // Create new map
+            // Determine sensible center using available coordinates
+            let center = [39.8283, -98.5795];
+            let zoom = 4;
+            if (shipment.origin && shipment.origin.lat && shipment.destination && shipment.destination.lat) {
+                center = [(shipment.origin.lat + shipment.destination.lat) / 2, (shipment.origin.lng + shipment.destination.lng) / 2];
+                zoom = 5;
+            } else if (shipment.currentLocation && shipment.currentLocation.lat) {
+                center = [shipment.currentLocation.lat, shipment.currentLocation.lng];
+                zoom = 6;
+            }
+
+            currentMap = initializeMap('tracking-map', { center: center, zoom: zoom });
+
+            // Add markers for origin and destination
+            // Add markers if coordinates available
+            const routePoints = [];
+            if (shipment.origin && shipment.origin.lat && shipment.origin.lng) {
+                addMarker(currentMap, shipment.origin.lat, shipment.origin.lng, `<strong>Pickup Point</strong><br>${shipment.origin.city}${shipment.origin.state ? ', ' + shipment.origin.state : ''}`, 'pickup');
+                routePoints.push([shipment.origin.lat, shipment.origin.lng]);
+            }
+            if (shipment.destination && shipment.destination.lat && shipment.destination.lng) {
+                addMarker(currentMap, shipment.destination.lat, shipment.destination.lng, `<strong>Delivery Point</strong><br>${shipment.destination.city}${shipment.destination.state ? ', ' + shipment.destination.state : ''}`, 'delivery');
+                routePoints.push([shipment.destination.lat, shipment.destination.lng]);
+            }
+
+            // Add intermediate waypoints based on updates (if coordinates known)
+            shipment.updates.forEach((update, index) => {
+                if (index > 0 && index < shipment.updates.length - 1) {
+                    const cityName = update.location ? update.location.split(',')[0].trim() : '';
+                    let waypointCity = null;
+                    if (typeof MAJOR_CITIES !== 'undefined') waypointCity = MAJOR_CITIES.find(c => c.city === cityName) || waypointCity;
+                    if (!waypointCity && typeof SUGGESTED_LOCATIONS !== 'undefined') waypointCity = SUGGESTED_LOCATIONS.find(c => c.city === cityName) || waypointCity;
+                    if (waypointCity && waypointCity.lat && waypointCity.lng) {
+                        addMarker(currentMap, waypointCity.lat, waypointCity.lng, `<strong>${update.status.toUpperCase()}</strong><br>${update.location}<br>${update.date} ${update.time}`, 'waypoint');
+                        routePoints.splice(index, 0, [waypointCity.lat, waypointCity.lng]);
+                    }
+                }
+            });
+
+            // Draw route and fit bounds if we have at least two points with coordinates
+            if (routePoints.length > 1) {
+                drawRoute(currentMap, routePoints);
+                const bounds = L.latLngBounds(routePoints);
+                currentMap.fitBounds(bounds, { padding: [50, 50] });
+            }
+
+            // Add a red 'parcel' candle marker at the latest known location
+            // Remove previous parcel marker
+            if (parcelMarker) {
+                try { parcelMarker.remove(); } catch (e) {}
+                parcelMarker = null;
+            }
+
+            // Determine parcel position: prefer shipment.currentLocation, fallback to last update city or destination
+            let parcelPos = null;
+            let parcelLabel = 'Current parcel location';
+            if (shipment.currentLocation && shipment.currentLocation.lat && shipment.currentLocation.lng) {
+                parcelPos = [shipment.currentLocation.lat, shipment.currentLocation.lng];
+                parcelLabel = shipment.currentLocation.label || parcelLabel;
+            } else if (shipment.updates && shipment.updates.length) {
+                const lastUpdate = shipment.updates[shipment.updates.length - 1];
+                const cityName = String(lastUpdate.location).split(',')[0].trim();
+                const cityObj = (typeof MAJOR_CITIES !== 'undefined') ? MAJOR_CITIES.find(c => c.city.toLowerCase() === cityName.toLowerCase()) : null;
+                if (cityObj) {
+                    parcelPos = [cityObj.lat, cityObj.lng];
+                    parcelLabel = `${cityObj.city}, ${cityObj.state}`;
+                }
+            }
+
+            if (!parcelPos && shipment.destination) {
+                parcelPos = [shipment.destination.lat, shipment.destination.lng];
+                parcelLabel = `${shipment.destination.city}, ${shipment.destination.state}`;
+            }
+
+            if (parcelPos) {
+                const parcelHtml = `
+                    <div style="transform: translateY(-12px); display:flex; align-items:flex-end; justify-content:center;">
+                      <div style="width:12px;height:22px;background:#ef4444;border-radius:6px 6px 3px 3px;border:2px solid rgba(0,0,0,0.08);"></div>
+                      <div style="width:6px;height:6px;background:#fff;border-radius:50%;position:relative;left:-9px;bottom:18px;border:1px solid rgba(0,0,0,0.06);"></div>
+                    </div>
+                `;
+                const parcelIcon = L.divIcon({ className: 'parcel-icon', html: parcelHtml, iconSize: [12, 22], iconAnchor: [6, 22] });
+                parcelMarker = L.marker(parcelPos, { icon: parcelIcon }).addTo(currentMap).bindPopup(`<strong>${parcelLabel}</strong>`);
+            }
+        }
+
+        // Listen for storage events so map updates when admin updates shipment in another tab/window
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'axonData_update') {
+                try {
+                    const payload = JSON.parse(e.newValue || '{}');
+                    // If tracking results are visible, refresh currently displayed shipment
+                    const displayed = document.getElementById('detailTrackingNumber').textContent;
+                    if (displayed) {
+                        const shipment = dataManager.getShipmentByTracking(displayed);
+                        if (shipment) {
+                            // Refresh details and map
+                            displayShipment(shipment);
+                        }
+                    }
+                } catch (err) {}
+            }
+        });
+
+        function displayTimeline(shipment) {
+            const timeline = document.getElementById('statusTimeline');
+            timeline.innerHTML = '';
+
+            shipment.updates.forEach((update, index) => {
+                const isCompleted = index < shipment.updates.length - 1;
+                const timelineItem = document.createElement('div');
+                timelineItem.className = `timeline-item ${isCompleted ? 'completed' : ''}`;
+                timelineItem.innerHTML = `
+                    <div class="timeline-content">
+                        <h5>${getStatusLabel(update.status)}</h5>
+                        <p><strong>${update.date}</strong> at ${update.time}</p>
+                        <p>${update.message}</p>
+                        <small style="color: #9ca3af;"><i class="fas fa-map-marker-alt"></i> ${update.location}</small>
+                    </div>
+                `;
+                timeline.appendChild(timelineItem);
+            });
+        }
+
+        function updateProgress(shipment) {
+            const statusProgress = {
+                'pending': 10,
+                'picked-up': 25,
+                'in-transit': 50,
+                'out-for-delivery': 75,
+                'delivered': 100,
+                'on-hold': 40,
+                'held-by-customs': 30,
+                'delay': 35,
+                'cancelled': 0
+            };
+
+            const progress = statusProgress[shipment.status] || 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function resetTracking() {
+            document.getElementById('trackingInput').value = '';
+            document.getElementById('trackingResults').style.display = 'none';
+            document.getElementById('noResults').style.display = 'none';
+            if (currentMap) {
+                currentMap.remove();
+                currentMap = null;
+            }
+        }
+
+        // Allow Enter key to search
+        document.getElementById('trackingInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchShipment();
+            }
+        });
+
+        // Focus on input when page loads
+        window.addEventListener('load', function() {
+            document.getElementById('trackingInput').focus();
+        });
+    </script>
+</body>
+</html>
