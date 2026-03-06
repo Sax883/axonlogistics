@@ -5,16 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Axon Logistics</title>
     
-    <!-- Bootstrap CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Font Awesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Leaflet Maps -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" rel="stylesheet">
     
-    <!-- Custom CSS -->
     <link href="../css/style.css" rel="stylesheet">
     <style>
         .admin-header-bar {
@@ -513,8 +511,8 @@
             return { city: val, state: '', lat: null, lng: null };
         }
 
-        function openCreateShipmentModal() {
-            const shipments = dataManager.getShipments();
+        async function openCreateShipmentModal() {
+            const shipments = await dataManager.getShipments();
             const nextIndex = shipments.length + 1;
             const id = 'AXN' + String(nextIndex).padStart(3, '0');
             const trackingNumber = `${id}-2025-${String(nextIndex).padStart(3, '0')}`;
@@ -536,7 +534,7 @@
             createShipmentModal.show();
         }
 
-        function createShipmentFromModal() {
+        async function createShipmentFromModal() {
             try {
                 const trackingNumber = document.getElementById('createTrackingNumber').value;
                 const createdDate = document.getElementById('createCreatedDate').value || new Date().toISOString().split('T')[0];
@@ -569,19 +567,19 @@
                     estimatedDelivery: estDelivery || ''
                 };
 
-                const created = dataManager.addShipment(newShipment);
-                showNotification('Shipment created: ' + created.trackingNumber, 'success');
+                const created = await dataManager.addShipment(newShipment);
+                showNotification('Shipment created successfully', 'success');
                 createShipmentModal.hide();
-                loadDashboard();
-                loadAllShipments();
+                await loadDashboard();
+                await loadAllShipments();
             } catch (err) {
                 console.error('createShipmentFromModal error', err);
                 showNotification('Failed to create shipment', 'error');
             }
         }
 
-        function loadDashboard() {
-            const shipments = dataManager.getShipments();
+        async function loadDashboard() {
+            const shipments = await dataManager.getShipments();
             document.getElementById('totalShipments').textContent = shipments.length;
             document.getElementById('inTransit').textContent = shipments.filter(s => s.status === 'in-transit').length;
             document.getElementById('delivered').textContent = shipments.filter(s => s.status === 'delivered').length;
@@ -597,8 +595,8 @@
             });
         }
 
-        function loadAllShipments() {
-            const shipments = dataManager.getShipments();
+        async function loadAllShipments() {
+            const shipments = await dataManager.getShipments();
             const table = document.getElementById('allShipmentsTable');
             table.innerHTML = '';
             shipments.forEach(shipment => {
@@ -607,7 +605,7 @@
                         <td><strong>${shipment.id}</strong></td>
                         <td>${shipment.trackingNumber}</td>
                         <td>${shipment.origin.city}${shipment.origin.state ? ', ' + shipment.origin.state : shipment.origin.country ? ', ' + shipment.origin.country : ''}</td>
-                        <td>${shipment.destination.city}, ${shipment.destination.state}</td>
+                        <td>${shipment.destination.city}, ${shipment.destination.state || ''}</td>
                         <td>${shipment.sender}</td>
                         <td>${shipment.weight}</td>
                         <td><span class="status-badge ${getStatusBadgeClass(shipment.status)}">${getStatusLabel(shipment.status)}</span></td>
@@ -648,8 +646,8 @@
             `;
         }
 
-        function loadClients() {
-            const clients = dataManager.getClients();
+        async function loadClients() {
+            const clients = await dataManager.getClients();
             const table = document.getElementById('clientsTable');
             table.innerHTML = '';
             clients.forEach(client => {
@@ -673,8 +671,8 @@
             });
         }
 
-        function openEditShipmentModal(shipmentId) {
-            const shipment = dataManager.getShipmentById(shipmentId);
+        async function openEditShipmentModal(shipmentId) {
+            const shipment = await dataManager.getShipmentById(shipmentId);
             currentEditingShipmentId = shipmentId;
 
             document.getElementById('modalTrackingNumber').textContent = shipment.trackingNumber;
@@ -700,7 +698,7 @@
             editShipmentModal.show();
         }
 
-        function saveShipmentUpdate() {
+        async function saveShipmentUpdate() {
             const status = document.getElementById('modalNewStatus').value;
             const message = document.getElementById('modalUpdateMessage').value;
             const locationInput = document.getElementById('modalUpdateLocation').value.trim();
@@ -726,26 +724,26 @@
 
             // Update weight if changed
             if (modalWeight) {
-                dataManager.updateShipment(currentEditingShipmentId, { weight: modalWeight });
+                await dataManager.updateShipment(currentEditingShipmentId, { weight: modalWeight });
             }
 
-            dataManager.updateShipmentStatus(currentEditingShipmentId, status, message, locationStr);
+            await dataManager.updateShipmentStatus(currentEditingShipmentId, status, message, locationStr);
             showNotification('Shipment updated successfully', 'success');
             editShipmentModal.hide();
-            loadDashboard();
-            loadAllShipments();
+            await loadDashboard();
+            await loadAllShipments();
         }
 
-        function deleteShipmentConfirm(shipmentId) {
+        async function deleteShipmentConfirm(shipmentId) {
             if (confirm('Are you sure you want to delete this shipment?')) {
-                dataManager.deleteShipment(shipmentId);
+                await dataManager.deleteShipment(shipmentId);
                 showNotification('Shipment deleted', 'success');
-                loadDashboard();
-                loadAllShipments();
+                await loadDashboard();
+                await loadAllShipments();
             }
         }
 
-        function createNewShipment(e) {
+        async function createNewShipment(e) {
             e.preventDefault();
 
             const originInput = document.getElementById('formOrigin').value;
@@ -784,11 +782,11 @@
                     estimatedDelivery: deliveryDate
                 };
 
-                dataManager.addShipment(newShipment);
+                await dataManager.addShipment(newShipment);
                 showNotification('Shipment created successfully', 'success');
                 document.getElementById('newShipmentForm').reset();
-                loadDashboard();
-                loadAllShipments();
+                await loadDashboard();
+                await loadAllShipments();
             } catch (err) {
                 console.error('Error creating shipment', err);
                 showNotification('Could not create shipment. Check console for details.', 'error');
@@ -802,8 +800,9 @@
             clientModal.show();
         }
 
-        function openEditClientModal(clientId) {
-            const client = dataManager.getClients().find(c => c.id === clientId);
+        async function openEditClientModal(clientId) {
+            const clients = await dataManager.getClients();
+            const client = clients.find(c => c.id === clientId);
             currentEditingClientId = clientId;
 
             document.getElementById('clientModalTitle').textContent = 'Edit Client';
@@ -815,7 +814,7 @@
             clientModal.show();
         }
 
-        function saveClient() {
+        async function saveClient() {
             const name = document.getElementById('clientName').value;
             const email = document.getElementById('clientEmail').value;
             const phone = document.getElementById('clientPhone').value;
@@ -827,27 +826,27 @@
             }
 
             if (currentEditingClientId) {
-                dataManager.updateClient(currentEditingClientId, { name, email, phone, address });
+                await dataManager.updateClient(currentEditingClientId, { name, email, phone, address });
                 showNotification('Client updated successfully', 'success');
             } else {
-                dataManager.addClient({ name, email, phone, address });
+                await dataManager.addClient({ name, email, phone, address });
                 showNotification('Client added successfully', 'success');
             }
 
             clientModal.hide();
-            loadClients();
+            await loadClients();
         }
 
-        function deleteClientConfirm(clientId) {
+        async function deleteClientConfirm(clientId) {
             if (confirm('Are you sure you want to delete this client?')) {
-                dataManager.deleteClient(clientId);
+                await dataManager.deleteClient(clientId);
                 showNotification('Client deleted', 'success');
-                loadClients();
+                await loadClients();
             }
         }
 
-        function viewShipmentDetails(shipmentId) {
-            const shipment = dataManager.getShipmentById(shipmentId);
+        async function viewShipmentDetails(shipmentId) {
+            const shipment = await dataManager.getShipmentById(shipmentId);
             const fromLabel = `${shipment.origin.city}${shipment.origin.state ? ', ' + shipment.origin.state : shipment.origin.country ? ', ' + shipment.origin.country : ''}`;
             const toLabel = `${shipment.destination.city}${shipment.destination.state ? ', ' + shipment.destination.state : shipment.destination.country ? ', ' + shipment.destination.country : ''}`;
             alert(`Shipment Details:\n\nTracking: ${shipment.trackingNumber}\nFrom: ${fromLabel}\nTo: ${toLabel}\nStatus: ${getStatusLabel(shipment.status)}\nWeight: ${shipment.weight}`);
