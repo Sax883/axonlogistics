@@ -137,7 +137,9 @@ const authManager = new AuthManager();
 
 class DataManager {
     constructor() {
-        if (!authManager.isAuthenticated()) {
+        // Only check authentication for admin pages
+        const isAdminPage = window.location.pathname.toLowerCase().includes('/admin/');
+        if (isAdminPage && !authManager.isAuthenticated()) {
             authManager.redirectToLogin();
         }
         this.initializeData();
@@ -179,7 +181,24 @@ class DataManager {
 
     async getShipmentByTracking(trackingNumber) {
         const shipments = await this.getShipments();
-        return shipments.find(s => s.trackingNumber === trackingNumber.trim());
+        const search = trackingNumber.trim().toUpperCase();
+        
+        // Try exact tracking number match first
+        let shipment = shipments.find(s => s.trackingNumber?.toUpperCase() === search);
+        if (shipment) return shipment;
+        
+        // Try shipment ID match (e.g., "AXN123")
+        shipment = shipments.find(s => s.id?.toUpperCase() === search);
+        if (shipment) return shipment;
+        
+        // Try partial match (search in tracking number or ID)
+        shipment = shipments.find(s => 
+            s.trackingNumber?.toUpperCase().includes(search) || 
+            s.id?.toUpperCase().includes(search)
+        );
+        if (shipment) return shipment;
+        
+        return null;
     }
 
     async getShipmentById(id) {
@@ -201,7 +220,26 @@ class DataManager {
             (shipment.destination.country ? ', ' + shipment.destination.country : '');
 
         shipment.createdDate = new Date().toISOString();
-        shipment.updates = [
+        
+        // Add parcel details with defaults
+        shipment.weight = shipment.weight || '2.5 kg';
+        shipment.description = shipment.description || 'General cargo';
+        shipment.contents = shipment.contents || 'Mixed items';
+        shipment.shippedDate = shipment.shippedDate || new Date().toISOString().split('T')[0];
+        
+        // Calculate expected delivery (default 7-10 days)
+        const deliveryDate = new Date();
+        deliveryDate.setDate(deliveryDate.getDate() + (shipment.daysToDeliver || 7));
+        shipment.expectedDelivery = shipment.expectedDelivery || deliveryDate.toISOString().split('T')[0];
+        
+        // Add sender contact info
+        shipment.senderContact = shipment.senderContact || '+1-800-AXON-LOG';
+        
+        // Add receiver details
+        shipment.receiverName = shipment.receiverName || 'Recipient';
+        shipment.receiverContact = shipment.receiverContact || 'Not provided';
+        
+        shipment.updates = shipment.updates || [
             { 
                 date: new Date().toISOString().split('T')[0], 
                 time: new Date().toTimeString().split(' ')[0], 
@@ -211,11 +249,20 @@ class DataManager {
             }
         ];
         
-        shipment.currentLocation = {
-            lat: shipment.origin.lat,
-            lng: shipment.origin.lng,
-            label: originLabel
-        };
+        // Preserve existing currentLocation or use origin as default
+        if (!shipment.currentLocation) {
+            shipment.currentLocation = {
+                lat: shipment.origin.lat,
+                lng: shipment.origin.lng,
+                label: originLabel,
+                city: shipment.origin.city
+            };
+        } else {
+            // Ensure label is set if not provided
+            if (!shipment.currentLocation.label) {
+                shipment.currentLocation.label = originLabel;
+            }
+        }
 
         shipment.destinationLocation = {
             lat: shipment.destination.lat,

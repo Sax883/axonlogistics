@@ -247,12 +247,85 @@
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .login-container {
+                padding: 10px;
+            }
+
             .login-card {
-                padding: 35px 25px;
+                padding: 30px 20px;
+                border-radius: 16px;
+            }
+
+            .login-header {
+                margin-bottom: 30px;
             }
 
             .login-header h1 {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
+                margin-bottom: 5px;
+            }
+
+            .login-header p {
+                font-size: 0.9rem;
+            }
+
+            .logo-icon {
+                width: 60px;
+                height: 60px;
+                margin: 0 auto 15px;
+            }
+
+            .logo-icon i {
+                font-size: 2rem;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            .form-label {
+                font-size: 0.85rem;
+                margin-bottom: 8px;
+            }
+
+            .form-control {
+                padding: 14px 12px;
+                font-size: 16px; /* Prevents iOS zoom on focus */
+                border-radius: 10px;
+                height: auto;
+                min-height: 48px; /* Touch target minimum */
+            }
+
+            .form-control::placeholder {
+                font-size: 14px;
+            }
+
+            .btn-login {
+                padding: 14px;
+                font-size: 0.95rem;
+                min-height: 48px;
+                border-radius: 10px;
+                margin-top: 8px;
+            }
+
+            .show-password {
+                top: -40px;
+                font-size: 0.8rem;
+            }
+
+            .security-info {
+                padding: 12px;
+                font-size: 0.8rem;
+                margin-top: 20px;
+            }
+
+            .back-btn {
+                margin-top: 15px;
+                font-size: 0.9rem;
             }
         }
     </style>

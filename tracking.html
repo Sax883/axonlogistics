@@ -39,6 +39,30 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
+        .form-control {
+            padding: 12px 15px;
+            font-size: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group .btn {
+            padding: 10px 20px;
+        }
+
         .tracking-container {
             max-width: 1200px;
             margin: 40px auto;
@@ -98,33 +122,149 @@
             margin: 30px 0;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            height: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            height: 500px;
+            background: linear-gradient(135deg, #e5f2ff 0%, #f0f9ff 100%);
+            width: 100%;
         }
 
         #trackingMap {
-            width: 100%;
-            height: 100%;
+            width: 100% !important;
+            height: 100% !important;
+            background: #e5f2ff;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .map-container {
+                height: 350px;
+                margin: 20px 0;
+            }
+
+            .satellite-toggle {
+                padding: 8px 10px !important;
+                font-size: 0.75rem !important;
+                top: 10px !important;
+                right: 10px !important;
+            }
+
+            .search-form {
+                padding: 15px;
+                margin: 15px 10px;
+            }
+
+            .form-control {
+                padding: 12px 12px;
+                font-size: 16px; /* Prevents iOS zoom */
+                min-height: 44px;
+            }
+
+            .input-group .btn {
+                padding: 12px 15px;
+                min-height: 44px;
+                font-size: 0.9rem;
+            }
+
+            .tracking-result {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .map-container {
+                height: 280px;
+                margin: 15px 0;
+                border-radius: 8px;
+            }
+
+            .satellite-toggle {
+                padding: 6px 8px !important;
+                font-size: 0.7rem !important;
+                top: 8px !important;
+                right: 8px !important;
+            }
+
+            .search-form {
+                padding: 12px;
+                margin: 10px;
+                border-radius: 12px;
+            }
+
+            .form-control {
+                padding: 14px;
+                font-size: 16px;
+                min-height: 48px;
+                border-radius: 8px;
+            }
+
+            .input-group .btn {
+                padding: 14px 12px;
+                min-height: 48px;
+                font-size: 0.85rem;
+            }
+
+            .tracking-result {
+                padding: 15px;
+                border-radius: 10px;
+            }
+
+            .shipment-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .row {
+                flex-direction: column;
+            }
+
+            .col-md-8, .col-md-4 {
+                width: 100%;
+                margin-bottom: 15px;
+            }
         }
 
         .satellite-toggle {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 15px;
+            right: 15px;
             z-index: 400;
             background: white;
             border: 2px solid var(--secondary-color);
-            border-radius: 6px;
-            padding: 8px 12px;
+            border-radius: 8px;
+            padding: 10px 14px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--secondary-color);
             font-size: 0.85rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         .satellite-toggle:hover {
             background: var(--secondary-color);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Mobile responsive satellite button */
+        @media (max-width: 768px) {
+            .satellite-toggle {
+                padding: 8px 10px;
+                font-size: 0.75rem;
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .satellite-toggle {
+                padding: 6px 8px;
+                font-size: 0.65rem;
+                top: 8px;
+                right: 8px;
+            }
         }
 
         .route-info {
@@ -218,10 +358,66 @@
             font-weight: 600;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 9999;
+            animation: slideIn 0.3s ease-out;
         }
 
         .notification.error {
             background: #ef4444;
+        }
+
+        .notification.success {
+            background: #10b981;
+        }
+
+        .notification.info {
+            background: #0284c7;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Enhanced route visualization styles */
+        @keyframes dashAnimation {
+            to {
+                stroke-dashoffset: -23;
+            }
+        }
+
+        .destination-route {
+            animation: dashAnimation 2s linear infinite !important;
+        }
+
+        @keyframes carPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 5px white, 0 0 0 8px #ff8c00, 0 8px 20px rgba(255, 140, 0, 0.5);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 0 5px white, 0 0 0 12px rgba(255, 165, 0, 0.7), 0 12px 30px rgba(255, 140, 0, 0.7);
+                transform: scale(1.08);
+            }
+        }
+
+        .car-marker {
+            animation: carPulse 1.8s ease-in-out infinite;
+        }
+
+        /* Smooth transitions for info cards */
+        div[style*="background: white; padding: 15px"] {
+            transition: all 0.3s ease;
+        }
+
+        div[style*="background: white; padding: 15px"]:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -262,6 +458,12 @@
                         <i class="fas fa-search"></i> Track
                     </button>
                 </div>
+                <div style="margin-top: 12px; text-align: center; font-size: 0.85rem;">
+                    <small style="color: rgba(255,255,255,0.8);">
+                        <i class="fas fa-info-circle"></i> 
+                        <span id="sampleTracking">Click to load sample shipments</span>
+                    </small>
+                </div>
             </div>
         </div>
     </div>
@@ -274,39 +476,130 @@
                     <div class="shipment-info">
                         <h2 id="trackingNumber"></h2>
                         <div class="info-row">
-                            <span class="info-label">From:</span>
-                            <span id="origin"></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">To:</span>
-                            <span id="destination"></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Sender:</span>
-                            <span id="senderName"></span>
+                            <span class="info-label">Status:</span>
+                            <span class="status-badge" id="statusBadge"></span>
                         </div>
                     </div>
-                    <span class="status-badge" id="statusBadge"></span>
                 </div>
 
-                <!-- Map -->
-                <div class="map-container">
-                    <div id="trackingMap"></div>
-                    <button class="satellite-toggle" id="satelliteToggle" type="button">
-                        <i class="fas fa-satellite"></i> Satellite
-                    </button>
-                </div>
-
-                <!-- Route Info -->
-                <div class="route-info">
-                    <h5 style="margin-bottom: 15px; color: var(--primary-color); font-weight: 700;">
-                        <i class="fas fa-compass"></i> Current Location & Direction
-                    </h5>
-                    <div style="text-align: center;">
-                        <div class="location" style="justify-content: center; margin-bottom: 15px;">
-                            <strong id="currentLocation">Loading...</strong> <strong id="directionText"></strong>
+                <!-- Parcel Details Section -->
+                <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px; padding: 25px; margin-bottom: 30px; border-left: 5px solid var(--secondary-color);">
+                    <h4 style="color: var(--primary-color); font-weight: 700; margin-bottom: 20px;">
+                        <i class="fas fa-box"></i> Parcel Details
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                <div class="info-label" style="margin-bottom: 8px;"><i class="fas fa-tag"></i> Tracking Number</div>
+                                <div style="font-weight: 600; color: var(--primary-color); font-size: 1.1rem;" id="parcelTrackingNumber">N/A</div>
+                            </div>
                         </div>
-                        <div class="compass" id="compassDirection"><span style="font-size: 1.5rem;">↑</span><br><span style="font-size: 0.7rem;">N</span></div>
+                        <div class="col-md-6 mb-3">
+                            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                <div class="info-label" style="margin-bottom: 8px;"><i class="fas fa-weight"></i> Weight</div>
+                                <div style="font-weight: 600; color: #374151;" id="parcelWeight">N/A</div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                <div class="info-label" style="margin-bottom: 8px;"><i class="fas fa-barcode"></i> Contents/Description</div>
+                                <div style="font-weight: 600; color: #374151;" id="parcelDescription">N/A</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                <div class="info-label" style="margin-bottom: 8px;"><i class="fas fa-calendar"></i> Shipped Date</div>
+                                <div style="font-weight: 600; color: #374151;" id="parcelShippedDate">N/A</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                <div class="info-label" style="margin-bottom: 8px;"><i class="fas fa-box-check"></i> Expected Delivery</div>
+                                <div style="font-weight: 600; color: #374151;" id="parcelExpectedDelivery">N/A</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sender & Receiver Section -->
+                <div class="row" style="margin-bottom: 30px;">
+                    <div class="col-md-6">
+                        <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 20px; border-left: 5px solid var(--secondary-color);">
+                            <h5 style="color: var(--primary-color); font-weight: 700; margin-bottom: 15px;">
+                                <i class="fas fa-location-dot"></i> From (Sender)
+                            </h5>
+                            <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                                <div class="info-label" style="margin-bottom: 5px;">Name</div>
+                                <div style="font-weight: 600; color: #374151; margin-bottom: 10px;" id="senderName">N/A</div>
+                                <div class="info-label" style="margin-bottom: 5px;">Location</div>
+                                <div style="font-weight: 600; color: #374151; margin-bottom: 10px;" id="senderLocation">N/A</div>
+                                <div class="info-label" style="margin-bottom: 5px;">Contact</div>
+                                <div style="font-weight: 600; color: #374151;" id="senderContact">N/A</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div style="background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%); border-radius: 12px; padding: 20px; border-left: 5px solid var(--success-color);">
+                            <h5 style="color: var(--success-color); font-weight: 700; margin-bottom: 15px;">
+                                <i class="fas fa-map-pin"></i> To (Receiver)
+                            </h5>
+                            <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                                <div class="info-label" style="margin-bottom: 5px;">Name</div>
+                                <div style="font-weight: 600; color: #374151; margin-bottom: 10px;" id="receiverName">N/A</div>
+                                <div class="info-label" style="margin-bottom: 5px;">Location</div>
+                                <div style="font-weight: 600; color: #374151; margin-bottom: 10px;" id="receiverLocation">N/A</div>
+                                <div class="info-label" style="margin-bottom: 5px;">Contact</div>
+                                <div style="font-weight: 600; color: #374151;" id="receiverContact">N/A</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map with Enhanced Visualization -->
+                <div style="margin: 30px 0;">
+                    <h4 style="color: var(--primary-color); font-weight: 700; margin-bottom: 15px;">
+                        <i class="fas fa-map"></i> Real-Time Tracking Map
+                    </h4>
+                    <div class="map-container">
+                        <div id="trackingMap"></div>
+                        <button class="satellite-toggle" id="satelliteToggle" type="button">
+                            <i class="fas fa-satellite"></i> Satellite
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Location Details -->
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 20px; margin: 30px 0; border-left: 5px solid #f59e0b;">
+                    <h5 style="color: #d97706; font-weight: 700; margin-bottom: 15px;">
+                        <i class="fas fa-location-arrow"></i> Current Location & Direction
+                    </h5>
+                    
+                    <!-- Current Location Banner -->
+                    <div style="background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 15px;">
+                        <div style="font-size: 0.85rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                            <i class="fas fa-car"></i> Parcel Currently At
+                        </div>
+                        <div style="font-weight: 700; font-size: 1.3rem; margin-bottom: 8px;" id="currentLocation">Loading...</div>
+                        <div style="font-size: 0.9rem; display: flex; justify-content: space-between;">
+                            <span><i class="fas fa-compass"></i> Journey: <strong id="journeyProgress">--</strong>% Complete</span>
+                            <span><i class="fas fa-location-dot"></i> Moving</span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div style="background: white; padding: 15px; border-radius: 8px;">
+                                <div class="info-label" style="margin-bottom: 8px;">Heading Towards</div>
+                                <div style="font-weight: 600; font-size: 1.1rem; color: var(--success-color);" id="destination">N/A</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="compass" id="compassDirection">
+                                <span style="font-size: 2rem;">↑</span>
+                                <br>
+                                <span style="font-size: 0.8rem;">N</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
