@@ -175,8 +175,14 @@ class DataManager {
 
     // SHIPMENT METHODS
     async getShipments() {
-        const data = localStorage.getItem('axonShipments');
-        return data ? JSON.parse(data) : [];
+        try {
+            const response = await fetch('/api/shipments');
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching shipments from server:', error);
+            return [];
+        }
     }
 
     async getShipmentByTracking(trackingNumber) {
@@ -271,23 +277,37 @@ class DataManager {
             direction: shipment.direction || null
         };
 
-        const shipments = await this.getShipments();
-        shipments.unshift(shipment);
-        localStorage.setItem('axonShipments', JSON.stringify(shipments));
-        this.onShipmentsUpdated();
-        return shipment;
+        try {
+            const response = await fetch('/api/shipments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(shipment)
+            });
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            const savedShipment = await response.json();
+            this.onShipmentsUpdated();
+            return savedShipment;
+        } catch (error) {
+            console.error('Error saving shipment to server:', error);
+            throw error;
+        }
     }
 
     async updateShipment(id, updates) {
-        const shipments = await this.getShipments();
-        const index = shipments.findIndex(s => s.id === id);
-        if (index !== -1) {
-            shipments[index] = { ...shipments[index], ...updates };
-            localStorage.setItem('axonShipments', JSON.stringify(shipments));
+        try {
+            const response = await fetch(`/api/shipments/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates)
+            });
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            const updatedShipment = await response.json();
             this.onShipmentsUpdated();
-            return shipments[index];
+            return updatedShipment;
+        } catch (error) {
+            console.error('Error updating shipment on server:', error);
+            throw error;
         }
-        throw new Error('Shipment not found');
     }
 
     async updateShipmentStatus(id, status, message, location, direction = null) {
@@ -331,10 +351,16 @@ class DataManager {
     }
 
     async deleteShipment(id) {
-        const shipments = await this.getShipments();
-        const filtered = shipments.filter(s => s.id !== id);
-        localStorage.setItem('axonShipments', JSON.stringify(filtered));
-        this.onShipmentsUpdated();
+        try {
+            const response = await fetch(`/api/shipments/${id}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            this.onShipmentsUpdated();
+        } catch (error) {
+            console.error('Error deleting shipment from server:', error);
+            throw error;
+        }
     }
 
     // CLIENT METHODS
