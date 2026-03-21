@@ -9,10 +9,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Use /tmp for Render compatibility, fallback to app root
-const dataFile = process.env.NODE_ENV === 'production' 
-    ? '/tmp/server-data.json' 
-    : path.join(__dirname, "server-data.json");
+// Data file path - use current directory
+const dataFile = path.join(__dirname, "server-data.json");
 
 function readData() {
     try {
@@ -39,7 +37,7 @@ if (!fs.existsSync(dataFile)) {
     writeData({ shipments: [] });
 }
 
-// API ROUTES FIRST (before static middleware)
+// API ROUTES FIRST (before static middleware) 
 app.get("/api/shipments", (req, res) => {
     try {
         const data = readData();
@@ -53,9 +51,17 @@ app.get("/api/shipments", (req, res) => {
 });
 
 app.get("/api/shipments/:id", (req, res) => {
-    const data = readData();
-    const shipment = (data.shipments || []).find(s => s.id === req.params.id);
-    res.json(shipment || { error: "Not found" });
+    try {
+        const data = readData();
+        const shipment = (data.shipments || []).find(s => s.id === req.params.id);
+        if (shipment) {
+            res.json(shipment);
+        } else {
+            res.status(404).json({ error: "Not found" });
+        }
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
 app.post("/api/shipments", (req, res) => {
@@ -63,14 +69,17 @@ app.post("/api/shipments", (req, res) => {
         console.log("POST /api/shipments - received request");
         const data = readData();
         const shipment = req.body;
+        
         if (!shipment.id) {
             const ts = Date.now().toString().slice(-3);
             shipment.id = "AXN" + ts;
             shipment.trackingNumber = shipment.id + "-2026-" + ts;
         }
-        shipment.createdDate = new Date().toISOString();
+        
+        shipment.createdDate = shipment.createdDate || new Date().toISOString();
         data.shipments = data.shipments || [];
         data.shipments.unshift(shipment);
+        
         const writeOk = writeData(data);
         if (writeOk) {
             console.log("POST /api/shipments - shipment saved with ID:", shipment.id);
@@ -125,5 +134,5 @@ app.get("/api/health", (req, res) => {
 app.use(express.static(path.join(__dirname)));
 
 app.listen(PORT, () => {
-    console.log(`API running on port ${PORT}`);
+    console.log(`🚀 API running on port ${PORT}`);
 });
