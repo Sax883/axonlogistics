@@ -1,6 +1,31 @@
-// ========================
-// Data Management System (Supabase Cloud Sync)
-// ========================
+// =============================================================================
+// 1. ADMIN SECURITY GATE (Username: axon_logistics | Pass: @Power081)
+// =============================================================================
+(function() {
+    const ADMIN_USER = "axon_logistics";
+    const ADMIN_PASS = "@Power081";
+    
+    // Checks if "admin" is in the folder path or filename
+    const isInsideAdmin = window.location.pathname.toLowerCase().includes('admin');
+
+    if (isInsideAdmin && localStorage.getItem('axon_admin_authenticated') !== 'true') {
+        const user = prompt("Axon Admin Username:");
+        const pass = prompt("Axon Admin Password:");
+
+        if (user === ADMIN_USER && pass === ADMIN_PASS) {
+            localStorage.setItem('axon_admin_authenticated', 'true');
+            alert("Access Granted. Welcome to Axon Logistics Admin.");
+        } else {
+            alert("Unauthorized Access Denied.");
+            window.location.href = "../index.html"; 
+            throw new Error("Auth failed: Security Redirect.");
+        }
+    }
+})();
+
+// =============================================================================
+// 2. Data Management System (Supabase Cloud Sync)
+// =============================================================================
 
 const SUPABASE_URL = 'https://iubsagbeugcaeybztbny.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_FIJjFcUZMusW_tXzMhCsGQ_lvfMNmoF';
@@ -8,18 +33,15 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 class DataManager {
   constructor() {
-    // initializeData is kept for legacy structure but the cloud handles the storage
     this.initializeData();
   }
 
   initializeData() {
-    // We keep this to ensure the local browser knows we are using cloud data
     if (!localStorage.getItem('axonData')) {
       localStorage.setItem('axonData', JSON.stringify({ cloudEnabled: true }));
     }
   }
 
-  // Cloud-based data fetch
   async getShipments() {
     const { data, error } = await supabaseClient
       .from('shipments')
@@ -34,10 +56,11 @@ class DataManager {
   }
 
   async getShipmentByTracking(trackingNumber) {
+    if (!trackingNumber) return null;
     const { data } = await supabaseClient
       .from('shipments')
       .select('*')
-      .eq('trackingNumber', trackingNumber)
+      .eq('trackingNumber', trackingNumber.trim())
       .single();
     return data;
   }
@@ -52,7 +75,6 @@ class DataManager {
   }
 
   async addShipment(shipment) {
-    // Generate IDs based on your existing pattern
     const timestamp = Date.now().toString().slice(-3);
     shipment.id = 'AXN' + timestamp;
     shipment.trackingNumber = `${shipment.id}-2026-${timestamp}`;
@@ -64,7 +86,7 @@ class DataManager {
         date: new Date().toISOString().split('T')[0], 
         time: new Date().toTimeString().split(' ')[0], 
         status: 'pending', 
-        message: 'Shipment created', 
+        message: 'Shipment created and registered', 
         location: originLabel 
       }
     ];
@@ -84,7 +106,6 @@ class DataManager {
   }
 
   async updateShipmentStatus(id, status, message, location) {
-    // Fetch the current shipment first to get existing updates
     const shipment = await this.getShipmentById(id);
     if (!shipment) return;
 
@@ -98,13 +119,10 @@ class DataManager {
 
     const updatedUpdates = [...(shipment.updates || []), updateEntry];
     
-    // Resolve coordinates (your original logic)
     let currentLocation = shipment.currentLocation;
     try {
       const cityName = String(location).split(',')[0].trim();
-      const pool = [];
-      if (typeof MAJOR_CITIES !== 'undefined') pool.push(...MAJOR_CITIES);
-      if (typeof SUGGESTED_LOCATIONS !== 'undefined') pool.push(...SUGGESTED_LOCATIONS);
+      const pool = [...MAJOR_CITIES, ...SUGGESTED_LOCATIONS];
       
       const cityObj = pool.find(c => (c.city && c.city.toLowerCase() === cityName.toLowerCase()) || (c.label && c.label.toLowerCase() === String(location).toLowerCase()));
       
@@ -112,9 +130,7 @@ class DataManager {
         const label = cityObj.label || `${cityObj.city}${cityObj.state ? ', ' + cityObj.state : ''}${cityObj.country ? ', ' + cityObj.country : ''}`;
         currentLocation = { lat: cityObj.lat, lng: cityObj.lng, label: label };
       }
-    } catch (err) {
-      // ignore mapping errors
-    }
+    } catch (err) { }
 
     return await this.updateShipment(id, { 
       status: status, 
@@ -124,10 +140,7 @@ class DataManager {
   }
 
   async deleteShipment(id) {
-    const { error } = await supabaseClient
-      .from('shipments')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabaseClient.from('shipments').delete().eq('id', id);
     if (error) throw error;
   }
 
@@ -144,6 +157,12 @@ class DataManager {
 
   async deleteClient(id) {
     await supabaseClient.from('clients').delete().eq('id', id);
+  }
+
+  logout() {
+    localStorage.removeItem('axon_admin_authenticated');
+    alert("Logged out successfully.");
+    window.location.href = "../index.html"; 
   }
 }
 
