@@ -189,7 +189,9 @@ async function handleCreateShipment(e) {
 
     const shipment = {
         senderName: document.getElementById('formSender').value,
+        senderContact: document.getElementById('formSenderContact').value,
         receiverName: document.getElementById('formReceiver').value,
+        receiverContact: document.getElementById('formReceiverContact').value,
         origin: {
             city: origin.city,
             label: origin.label,
