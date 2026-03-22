@@ -1,0 +1,72 @@
+{
+  "shipments": [
+    {
+      "destination": {
+        "lng": -74.006,
+        "lat": 40.7128,
+        "city": "New York"
+      },
+      "senderName": "Test",
+      "origin": {
+        "lng": -80.1918,
+        "lat": 25.7617,
+        "city": "Miami"
+      },
+      "id": "AXN115",
+      "trackingNumber": "AXN115-2026-115",
+      "createdDate": "2026-03-21T22:54:20.115Z"
+    },
+    {
+      "senderName": "FinalTest",
+      "receiverName": "Recipient",
+      "origin": {
+        "city": "Miami",
+        "lat": 25.7617,
+        "lng": -80.1918
+      },
+      "destination": {
+        "city": "Denver",
+        "lat": 39.7392,
+        "lng": -104.9903
+      },
+      "id": "AXN580",
+      "trackingNumber": "AXN580-2026-580",
+      "createdDate": "2026-03-21T21:49:02.580Z"
+    },
+    {
+      "senderName": "Mobile",
+      "receiverName": "Desktop",
+      "origin": {
+        "city": "Boston",
+        "lat": 42.3601,
+        "lng": -71.0589
+      },
+      "destination": {
+        "city": "Seattle",
+        "lat": 47.6062,
+        "lng": -122.3321
+      },
+      "id": "AXN591",
+      "trackingNumber": "AXN591-2026-591",
+      "createdDate": "2026-03-21T21:40:13.591Z"
+    },
+    {
+      "senderName": "Test",
+      "receiverName": "Recipient",
+      "origin": {
+        "city": "NYC",
+        "lat": 40,
+        "lng": -74
+      },
+      "destination": {
+        "city": "LA",
+        "lat": 34,
+        "lng": -118
+      },
+      "weight": "10",
+      "id": "AXN746",
+      "trackingNumber": "AXN746-2026-746",
+      "createdDate": "2026-03-21T21:32:35.746Z"
+    }
+  ]
+}
