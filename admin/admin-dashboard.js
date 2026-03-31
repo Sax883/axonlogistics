@@ -175,15 +175,17 @@ async function loadAllShipments() {
 async function handleCreateShipment(e) {
     e.preventDefault();
 
-    const origin = getLocationByName(document.getElementById('formOrigin').value);
-    const destination = getLocationByName(document.getElementById('formDestination').value);
+    const originInput = document.getElementById('formOrigin').value;
+    const destinationInput = document.getElementById('formDestination').value;
+    const origin = getLocationByName(originInput);
+    const destination = getLocationByName(destinationInput);
 
     if (!origin) {
-        showNotification('Please select a valid origin city', 'error');
+        showNotification('Please enter an origin address', 'error');
         return;
     }
     if (!destination) {
-        showNotification('Please select a valid destination city', 'error');
+        showNotification('Please enter a destination address', 'error');
         return;
     }
 
@@ -195,12 +197,16 @@ async function handleCreateShipment(e) {
         origin: {
             city: origin.city,
             label: origin.label,
+            state: origin.state || '',
+            country: origin.country || '',
             lat: origin.lat,
             lng: origin.lng
         },
         destination: {
             city: destination.city,
             label: destination.label,
+            state: destination.state || '',
+            country: destination.country || '',
             lat: destination.lat,
             lng: destination.lng
         },

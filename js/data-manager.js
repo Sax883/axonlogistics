@@ -496,9 +496,33 @@ function getAllLocationsByNames() {
 }
 
 function getLocationByName(name) {
+    const normalizedName = String(name || '').trim();
+    if (!normalizedName) return null;
+
     const all = [...MAJOR_CITIES, ...SUGGESTED_LOCATIONS];
-    return all.find(loc => 
-        loc.label.toLowerCase() === name.toLowerCase() || 
-        loc.city.toLowerCase() === name.toLowerCase()
+    const matched = all.find(loc => 
+        (loc.label && loc.label.toLowerCase() === normalizedName.toLowerCase()) || 
+        (loc.city && loc.city.toLowerCase() === normalizedName.toLowerCase())
     );
+
+    if (matched) return matched;
+
+    // Accept free-form addresses by parsing common "City, State, Country" patterns.
+    const parts = normalizedName
+        .split(',')
+        .map(part => part.trim())
+        .filter(Boolean);
+
+    const city = parts[0] || normalizedName;
+    const country = parts.length >= 2 ? parts[parts.length - 1] : '';
+    const state = parts.length > 2 ? parts[1] : '';
+
+    return {
+        city,
+        state,
+        country,
+        label: normalizedName,
+        lat: AXON_HQ.lat,
+        lng: AXON_HQ.lng
+    };
 }
