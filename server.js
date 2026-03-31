@@ -15,12 +15,16 @@ const dataFile = path.join(__dirname, "server-data.json");
 function readData() {
     try {
         if (fs.existsSync(dataFile)) {
-            return JSON.parse(fs.readFileSync(dataFile, "utf8"));
+            const parsed = JSON.parse(fs.readFileSync(dataFile, "utf8"));
+            return {
+                shipments: Array.isArray(parsed.shipments) ? parsed.shipments : [],
+                clients: Array.isArray(parsed.clients) ? parsed.clients : []
+            };
         }
     } catch (e) {
         console.error("Error reading data:", e.message);
     }
-    return { shipments: [] };
+    return { shipments: [], clients: [] };
 }
 
 function writeData(data) {
@@ -34,7 +38,7 @@ function writeData(data) {
 }
 
 if (!fs.existsSync(dataFile)) {
-    writeData({ shipments: [] });
+    writeData({ shipments: [], clients: [] });
 }
 
 // API ROUTES FIRST (before static middleware) 
@@ -128,6 +132,59 @@ app.delete("/api/shipments/:id", (req, res) => {
 
 app.get("/api/health", (req, res) => {
     res.json({ status: "OK" });
+});
+
+app.get("/api/clients", (req, res) => {
+    try {
+        const data = readData();
+        res.json(data.clients || []);
+    } catch (e) {
+        console.error("GET /api/clients - error:", e.message);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post("/api/clients", (req, res) => {
+    try {
+        const data = readData();
+        const client = req.body || {};
+
+        if (!client.id) {
+            const ts = Date.now().toString().slice(-3);
+            client.id = "CLT" + ts;
+        }
+
+        client.createdDate = client.createdDate || new Date().toISOString();
+        data.clients = data.clients || [];
+        data.clients.unshift(client);
+
+        if (writeData(data)) {
+            res.status(201).json(client);
+        } else {
+            res.status(500).json({ error: "Failed to save client" });
+        }
+    } catch (e) {
+        console.error("POST /api/clients - exception:", e.message);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.delete("/api/clients/:id", (req, res) => {
+    try {
+        const data = readData();
+        const previousLength = (data.clients || []).length;
+        data.clients = (data.clients || []).filter(client => client.id !== req.params.id);
+
+        if (data.clients.length < previousLength) {
+            writeData(data);
+            res.json({ message: "Deleted" });
+        } else {
+            res.status(404).json({ error: "Not found" });
+        }
+    } catch (e) {
+        console.error("DELETE /api/clients/:id - exception:", e.message);
+        res.status(500).json({ error: e.message });
+    }
 });
 
 // STATIC MIDDLEWARE AFTER API ROUTES

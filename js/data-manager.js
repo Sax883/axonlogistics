@@ -6,59 +6,15 @@ class RealTimeSyncManager {
     constructor() {
         this.listeners = [];
         this.syncInterval = null;
-        this.lastSyncTime = 0;
-        this.syncDebounceMs = 500;
-        this.initLocalStorage();
         this.startRealTimeSync();
     }
 
-    initLocalStorage() {
-        if (!localStorage.getItem('axonShipments')) {
-            localStorage.setItem('axonShipments', JSON.stringify([]));
-        }
-        if (!localStorage.getItem('axonClients')) {
-            localStorage.setItem('axonClients', JSON.stringify([]));
-        }
-        if (!localStorage.getItem('axonSyncMetadata')) {
-            localStorage.setItem('axonSyncMetadata', JSON.stringify({
-                lastSync: Date.now(),
-                deviceId: this.generateDeviceId()
-            }));
-        }
-    }
-
-    generateDeviceId() {
-        let deviceId = localStorage.getItem('axonDeviceId');
-        if (!deviceId) {
-            deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-            localStorage.setItem('axonDeviceId', deviceId);
-        }
-        return deviceId;
-    }
-
     startRealTimeSync() {
-        // Check for changes every 2 seconds
+        // Poll shared server data so changes on one device appear on others.
         this.syncInterval = setInterval(() => {
-            this.broadcastChanges();
-        }, 2000);
-
-        // Listen for storage changes from other tabs/windows
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'axonShipments' || e.key === 'axonClients') {
-                this.notifyListeners(e.key);
-            }
-        });
-    }
-
-    broadcastChanges() {
-        const now = Date.now();
-        if (now - this.lastSyncTime < this.syncDebounceMs) return;
-        
-        this.lastSyncTime = now;
-        const metadata = JSON.parse(localStorage.getItem('axonSyncMetadata') || '{}');
-        metadata.lastSync = now;
-        metadata.deviceId = this.generateDeviceId();
-        localStorage.setItem('axonSyncMetadata', JSON.stringify(metadata));
+            this.notifyListeners('axonShipments');
+            this.notifyListeners('axonClients');
+        }, 5000);
     }
 
     subscribe(callback) {
@@ -92,7 +48,7 @@ class AuthManager {
     }
 
     isAuthenticated() {
-        const session = localStorage.getItem(this.SESSION_KEY);
+        const session = sessionStorage.getItem(this.SESSION_KEY);
         if (!session) return false;
 
         try {
@@ -102,7 +58,7 @@ class AuthManager {
                 return true;
             }
         } catch (e) {
-            localStorage.removeItem(this.SESSION_KEY);
+            sessionStorage.removeItem(this.SESSION_KEY);
         }
         return false;
     }
@@ -112,7 +68,7 @@ class AuthManager {
     }
 
     getUsername() {
-        const session = localStorage.getItem(this.SESSION_KEY);
+        const session = sessionStorage.getItem(this.SESSION_KEY);
         if (session) {
             try {
                 return JSON.parse(session).username || 'Admin';
@@ -124,7 +80,7 @@ class AuthManager {
     }
 
     logout() {
-        localStorage.removeItem(this.SESSION_KEY);
+        sessionStorage.removeItem(this.SESSION_KEY);
         window.location.href = 'login.html';
     }
 }
@@ -142,17 +98,7 @@ class DataManager {
         if (isAdminPage && !authManager.isAuthenticated()) {
             authManager.redirectToLogin();
         }
-        this.initializeData();
         this.setupSyncListeners();
-    }
-
-    initializeData() {
-        if (!localStorage.getItem('axonShipments')) {
-            localStorage.setItem('axonShipments', JSON.stringify([]));
-        }
-        if (!localStorage.getItem('axonClients')) {
-            localStorage.setItem('axonClients', JSON.stringify([]));
-        }
     }
 
     setupSyncListeners() {
@@ -325,7 +271,11 @@ class DataManager {
 
         const updatedUpdates = [...(shipment.updates || []), updateEntry];
         
-        let currentLocation = shipment.currentLocation;
+        let currentLocation = {
+            ...(shipment.currentLocation || {}),
+            label: location,
+            city: String(location || '').split(',')[0].trim() || shipment.currentLocation?.city || ''
+        };
         try {
             const cityName = String(location).split(',')[0].trim();
             const pool = [...MAJOR_CITIES, ...SUGGESTED_LOCATIONS];
@@ -336,8 +286,14 @@ class DataManager {
             );
             
             if (cityObj) {
-                const label = cityObj.label || `${cityObj.city}${cityObj.state ? ', ' + cityObj.state : ''}`;
-                currentLocation = { lat: cityObj.lat, lng: cityObj.lng, label: label };
+                const label = cityObj.label || `${cityObj.city}${cityObj.state ? ', ' + cityObj.state : ''}${cityObj.country ? ', ' + cityObj.country : ''}`;
+                currentLocation = {
+                    ...currentLocation,
+                    lat: cityObj.lat,
+                    lng: cityObj.lng,
+                    label: label,
+                    city: cityObj.city || currentLocation.city
+                };
             }
         } catch (err) { }
 
@@ -365,25 +321,50 @@ class DataManager {
 
     // CLIENT METHODS
     async getClients() {
-        const data = localStorage.getItem('axonClients');
-        return data ? JSON.parse(data) : [];
+        try {
+            const response = await fetch('/api/clients');
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching clients from server:', error);
+            return [];
+        }
     }
 
     async addClient(client) {
-        client.id = 'CLT' + Date.now().toString().slice(-3);
-        client.createdDate = new Date().toISOString();
-        const clients = await this.getClients();
-        clients.push(client);
-        localStorage.setItem('axonClients', JSON.stringify(clients));
-        this.onClientsUpdated();
-        return client;
+        const clientToSave = {
+            ...client,
+            id: client.id || 'CLT' + Date.now().toString().slice(-3),
+            createdDate: client.createdDate || new Date().toISOString()
+        };
+
+        try {
+            const response = await fetch('/api/clients', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clientToSave)
+            });
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            const savedClient = await response.json();
+            this.onClientsUpdated();
+            return savedClient;
+        } catch (error) {
+            console.error('Error saving client to server:', error);
+            throw error;
+        }
     }
 
     async deleteClient(id) {
-        const clients = await this.getClients();
-        const filtered = clients.filter(c => c.id !== id);
-        localStorage.setItem('axonClients', JSON.stringify(filtered));
-        this.onClientsUpdated();
+        try {
+            const response = await fetch(`/api/clients/${id}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            this.onClientsUpdated();
+        } catch (error) {
+            console.error('Error deleting client from server:', error);
+            throw error;
+        }
     }
 
     logout() {
@@ -522,7 +503,7 @@ function getLocationByName(name) {
         state,
         country,
         label: normalizedName,
-        lat: AXON_HQ.lat,
-        lng: AXON_HQ.lng
+        lat: null,
+        lng: null
     };
 }

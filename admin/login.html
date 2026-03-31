@@ -426,7 +426,7 @@
             },
 
             checkExistingSession() {
-                const session = localStorage.getItem(this.SESSION_KEY);
+                const session = sessionStorage.getItem(this.SESSION_KEY);
                 if (session) {
                     try {
                         const data = JSON.parse(session);
@@ -437,7 +437,7 @@
                             return;
                         }
                     } catch (e) {
-                        localStorage.removeItem(this.SESSION_KEY);
+                        sessionStorage.removeItem(this.SESSION_KEY);
                     }
                 }
             },
@@ -480,7 +480,7 @@
                     sessionId: this.generateSessionId()
                 };
 
-                localStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+                sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
                 
                 // Redirect to dashboard
                 setTimeout(() => {

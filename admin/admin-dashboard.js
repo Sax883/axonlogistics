@@ -67,6 +67,40 @@ function populateCitySuggestions() {
     });
 }
 
+function buildAddressObject(input) {
+    const normalizedInput = String(input || '').trim();
+    if (!normalizedInput) return null;
+
+    const knownLocation = getAllLocationsByNames().find(loc =>
+        (loc.label && loc.label.toLowerCase() === normalizedInput.toLowerCase()) ||
+        (loc.city && loc.city.toLowerCase() === normalizedInput.toLowerCase())
+    );
+    if (knownLocation) {
+        return {
+            city: knownLocation.city || normalizedInput,
+            state: knownLocation.state || '',
+            country: knownLocation.country || '',
+            label: knownLocation.label || normalizedInput,
+            lat: knownLocation.lat,
+            lng: knownLocation.lng
+        };
+    }
+
+    const parts = normalizedInput
+        .split(',')
+        .map(part => part.trim())
+        .filter(Boolean);
+
+    return {
+        city: parts[0] || normalizedInput,
+        state: parts.length > 2 ? parts[1] : '',
+        country: parts.length >= 2 ? parts[parts.length - 1] : '',
+        label: normalizedInput,
+        lat: null,
+        lng: null
+    };
+}
+
 // ===========================================================
 // DASHBOARD FUNCTIONS
 // ===========================================================
@@ -177,8 +211,8 @@ async function handleCreateShipment(e) {
 
     const originInput = document.getElementById('formOrigin').value;
     const destinationInput = document.getElementById('formDestination').value;
-    const origin = getLocationByName(originInput);
-    const destination = getLocationByName(destinationInput);
+    const origin = buildAddressObject(originInput);
+    const destination = buildAddressObject(destinationInput);
 
     if (!origin) {
         showNotification('Please enter an origin address', 'error');
@@ -199,16 +233,16 @@ async function handleCreateShipment(e) {
             label: origin.label,
             state: origin.state || '',
             country: origin.country || '',
-            lat: origin.lat,
-            lng: origin.lng
+            lat: origin.lat ?? null,
+            lng: origin.lng ?? null
         },
         destination: {
             city: destination.city,
             label: destination.label,
             state: destination.state || '',
             country: destination.country || '',
-            lat: destination.lat,
-            lng: destination.lng
+            lat: destination.lat ?? null,
+            lng: destination.lng ?? null
         },
         weight: document.getElementById('formWeight').value,
         estimatedDeliveryDate: document.getElementById('formDeliveryDate').value,
